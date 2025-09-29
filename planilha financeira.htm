@@ -1,92 +1,130 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>controle financeiro</title>
+  <title>Planner e Controle Financeiro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* ---------------- Global ---------------- */
     body {
-      font-family: 'segoe ui', sans-serif;
-      background: linear-gradient(135deg, #fff8e7, #e7f7ff);
-      color: #444;
-      display: flex;
-      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
+      padding: 0;
+      background: var(--bg-color, #fff8e7);
+      color: var(--text-color, #444);
     }
-    .sidebar {
-      width: 220px;
-      background: #fbeaff;
-      padding: 20px;
-      border-right: 2px solid #f0d8ff;
+    header {
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      justify-content: space-around;
+      background: #fbeaff;
+      padding: 10px 0;
+      border-bottom: 2px solid #f0d8ff;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    .sidebar button {
-      background: #ffd6e8;
+    header button {
+      background: none;
       border: none;
+      font-size: 16px;
+      cursor: pointer;
+      color: #6a4c93;
+      font-weight: bold;
+    }
+    header button.active {
+      color: #fff;
+      background: #fcbad3;
       border-radius: 10px;
-      padding: 10px;
+      padding: 5px 10px;
+    }
+    section {
+      display: none;
+      padding: 20px;
+    }
+    section.active {
+      display: block;
+    }
+
+    /* ---------------- Planner ---------------- */
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .day {
+      background: #ffe6f2;
+      border: 1px solid #f0d8ff;
+      border-radius: 8px;
+      padding: 15px 0;
+      text-align: center;
       cursor: pointer;
       transition: 0.2s;
-      font-size: 14px;
-      text-align: left;
-      text-transform: lowercase;
     }
-    .sidebar button:hover,
-    .sidebar button.active {
+    .day:hover {
       background: #fcbad3;
       color: white;
     }
-    .submenu {
+
+    /* ---------------- Modal ---------------- */
+    .modal {
       display: none;
-      flex-direction: column;
-      margin-left: 10px;
-      gap: 5px;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
     }
-    .submenu button {
-      background: #ffe6f2;
-      font-size: 13px;
-    }
-    .submenu.show {
-      display: flex;
-    }
-    .container {
-      flex: 1;
+    .modal-content {
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin: 20px;
       padding: 20px;
-      overflow-y: auto;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    h1 {
+    .modal-content h3 {
+      margin-top: 0;
       text-align: center;
-      color: #6a4c93;
-      margin-bottom: 20px;
-      text-transform: lowercase;
     }
+    .modal-content input, .modal-content button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    .modal-content button {
+      background: #ffd6e8;
+      border: none;
+      cursor: pointer;
+    }
+    .modal-content button:hover {
+      background: #fcbad3;
+      color: white;
+    }
+
+    /* ---------------- Financeiro ---------------- */
     form {
       display: grid;
-      grid-template-columns: 1fr 2fr 1fr 1fr auto;
-      gap: 10px;
-      margin-bottom: 20px;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 5px;
+      margin-bottom: 15px;
     }
-    input, select, button {
+    form input, form select, form button {
       padding: 8px;
       border-radius: 10px;
       border: 1px solid #ddd;
       font-size: 14px;
-      text-transform: lowercase;
-    }
-    button.add-btn {
-      background: #ffd6e8;
-      border: none;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button.add-btn:hover {
-      background: #fcbad3;
     }
     table {
       width: 100%;
@@ -102,241 +140,189 @@
       background: #e0d4f7;
       color: #4b3b6b;
     }
-    tr:hover {
-      background: #fdf6ff;
-    }
-    .total {
-      text-align: right;
-      font-weight: bold;
-      margin-top: 10px;
-      color: #444;
-    }
-    .delete-btn {
-      background: #ffb3b3;
-      border: none;
-      border-radius: 8px;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .delete-btn:hover {
-      background: #ff8080;
-      color: white;
-    }
-    #chart-container, #month-chart-container {
-      width: 100%;
-      max-width: 600px;
-      margin: 20px auto;
-    }
-    #chart-container {
-      display: none;
+
+    /* ---------------- Config ---------------- */
+    .config-option {
+      margin: 10px 0;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="sidebar">
-    <button id="inicio-toggle" class="active">início</button>
-    <button id="months-toggle">meses ▾</button>
-    <div class="submenu" id="months-submenu">
-      <button class="month-btn" data-month="janeiro">janeiro</button>
-      <button class="month-btn" data-month="fevereiro">fevereiro</button>
-      <button class="month-btn" data-month="março">março</button>
-      <button class="month-btn" data-month="abril">abril</button>
-      <button class="month-btn" data-month="maio">maio</button>
-      <button class="month-btn" data-month="junho">junho</button>
-      <button class="month-btn" data-month="julho">julho</button>
-      <button class="month-btn" data-month="agosto">agosto</button>
-      <button class="month-btn" data-month="setembro">setembro</button>
-      <button class="month-btn" data-month="outubro">outubro</button>
-      <button class="month-btn" data-month="novembro">novembro</button>
-      <button class="month-btn" data-month="dezembro">dezembro</button>
+
+  <!-- ---------------- Navegação ---------------- -->
+  <header>
+    <button class="active" onclick="showSection('planner')">Planner</button>
+    <button onclick="showSection('financeiro')">Financeiro</button>
+    <button onclick="showSection('config')">Configurações</button>
+  </header>
+
+  <!-- ---------------- Planner ---------------- -->
+  <section id="planner" class="active">
+    <h2>Planner Mensal</h2>
+    <div class="weekdays">
+      <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
     </div>
-  </div>
+    <div class="calendar" id="calendar"></div>
+  </section>
 
-  <div class="container">
-    <h1 id="page-title">🌸 comparativo anual 🌸</h1>
-
-    <form id="expense-form" style="display: none;">
-      <input type="date" id="date" required>
-      <input type="text" id="desc" placeholder="descrição" required>
-      <select id="category">
-        <option>alimentação</option>
-        <option>transporte</option>
-        <option>moradia</option>
-        <option>lazer</option>
-        <option>outros</option>
+  <!-- ---------------- Financeiro ---------------- -->
+  <section id="financeiro">
+    <h2>Controle Financeiro</h2>
+    <form id="financeForm">
+      <input type="text" id="desc" placeholder="Descrição" required>
+      <input type="number" id="valor" placeholder="Valor" step="0.01" required>
+      <select id="tipo">
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
       </select>
-      <input type="number" id="value" placeholder="r$" step="0.01" required>
-      <button type="submit" class="add-btn">adicionar</button>
+      <button type="submit">Adicionar</button>
     </form>
-
-    <table id="expense-table" style="display: none;">
+    <table>
       <thead>
-        <tr>
-          <th>data</th>
-          <th>descrição</th>
-          <th>categoria</th>
-          <th>valor (r$)</th>
-          <th>ações</th>
-        </tr>
+        <tr><th>Descrição</th><th>Valor</th><th>Tipo</th></tr>
       </thead>
-      <tbody id="expense-list">
-      </tbody>
+      <tbody id="financeTable"></tbody>
     </table>
+    <h3>Saldo: R$ <span id="saldo">0.00</span></h3>
+  </section>
 
-    <div class="total" id="total-container" style="display: none;">total: r$ <span id="total">0.00</span></div>
-
-    <div id="month-chart-container" style="display: none;">
-      <canvas id="month-chart"></canvas>
+  <!-- ---------------- Configurações ---------------- -->
+  <section id="config">
+    <h2>Configurações</h2>
+    <div class="config-option">
+      <label>Cor de fundo: </label>
+      <input type="color" id="bgColorPicker" value="#fff8e7">
     </div>
+    <div class="config-option">
+      <label>Cor do texto: </label>
+      <input type="color" id="textColorPicker" value="#444444">
+    </div>
+    <div class="config-option">
+      <label>Cor dos dias do planner: </label>
+      <input type="color" id="dayColorPicker" value="#ffe6f2">
+    </div>
+  </section>
 
-    <div id="chart-container">
-      <canvas id="annual-chart"></canvas>
+  <!-- ---------------- Modal de tarefas ---------------- -->
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <h3 id="taskTitle"></h3>
+      <ul id="taskList"></ul>
+      <input type="text" id="newTaskInput" placeholder="Nova tarefa">
+      <button onclick="addTask()">Adicionar Tarefa</button>
+      <button onclick="closeModal()">Fechar</button>
     </div>
   </div>
 
   <script>
-    const form = document.getElementById('expense-form');
-    const expenseList = document.getElementById('expense-list');
-    const totalEl = document.getElementById('total');
-    const pageTitle = document.getElementById('page-title');
-    const monthButtons = document.querySelectorAll('.month-btn');
-    const monthsToggle = document.getElementById('months-toggle');
-    const monthsSubmenu = document.getElementById('months-submenu');
-    const inicioToggle = document.getElementById('inicio-toggle');
-    const expenseTable = document.getElementById('expense-table');
-    const chartContainer = document.getElementById('chart-container');
-    const totalContainer = document.getElementById('total-container');
-    const monthChartContainer = document.getElementById('month-chart-container');
-    let monthChart;
+    // ---------------- Navegação ----------------
+    function showSection(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll("header button").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`header button[onclick*="${id}"]`).classList.add("active");
+    }
 
-    let dataByMonth = {};
-    let currentMonth = null;
-    let annualChart;
+    // ---------------- Planner ----------------
+    const calendar = document.getElementById("calendar");
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || {};
+    const today = new Date();
+    const monthDays = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
 
-    function renderExpenses() {
-      expenseList.innerHTML = '';
-      let total = 0;
-      let categoryTotals = {};
+    for (let i = 1; i <= monthDays; i++) {
+      const day = document.createElement("div");
+      day.classList.add("day");
+      day.textContent = i;
+      day.onclick = () => openModal(i);
+      calendar.appendChild(day);
+    }
 
-      (dataByMonth[currentMonth] || []).forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${item.date}</td>
-          <td>${item.desc}</td>
-          <td>${item.category}</td>
-          <td>r$ ${item.value.toFixed(2)}</td>
-          <td><button class="delete-btn" data-index="${index}">excluir</button></td>
-        `;
-        expenseList.appendChild(row);
-        total += item.value;
-        categoryTotals[item.category] = (categoryTotals[item.category] || 0) + item.value;
-      });
-      totalEl.textContent = total.toFixed(2);
+    let currentDay = null;
+    function openModal(day) {
+      currentDay = day;
+      document.getElementById("taskTitle").textContent = "Tarefas do dia " + day;
+      renderTasks();
+      document.getElementById("taskModal").style.display = "flex";
+    }
+    function closeModal() { document.getElementById("taskModal").style.display = "none"; }
 
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const idx = e.target.getAttribute('data-index');
-          dataByMonth[currentMonth].splice(idx, 1);
-          renderExpenses();
+    function addTask() {
+      const input = document.getElementById("newTaskInput");
+      const task = input.value.trim();
+      if(task){
+        if(!tasks[currentDay]) tasks[currentDay] = [];
+        tasks[currentDay].push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        input.value = "";
+        renderTasks();
+      }
+    }
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      if(tasks[currentDay]){
+        tasks[currentDay].forEach((t,i)=>{
+          const li = document.createElement("li");
+          li.textContent = t;
+          li.onclick = () => { tasks[currentDay].splice(i,1); localStorage.setItem("tasks", JSON.stringify(tasks)); renderTasks(); };
+          list.appendChild(li);
         });
-      });
+      }
+    }
 
-      // gráfico de pizza por categoria
-      const ctx = document.getElementById('month-chart').getContext('2d');
-      if (monthChart) monthChart.destroy();
-      monthChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: Object.keys(categoryTotals),
-          datasets: [{
-            data: Object.values(categoryTotals),
-            backgroundColor: [
-              '#fcbad3', '#a0e7e5', '#b4f8c8', '#ffeeba', '#cdb4db'
-            ]
-          }]
-        }
+    // ---------------- Financeiro ----------------
+    const financeForm = document.getElementById("financeForm");
+    const financeTable = document.getElementById("financeTable");
+    const saldoSpan = document.getElementById("saldo");
+    let saldo = parseFloat(localStorage.getItem("saldo")) || 0;
+    let registros = JSON.parse(localStorage.getItem("registros")) || [];
+
+    function atualizarFinanceiro() {
+      financeTable.innerHTML = "";
+      registros.forEach(r=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${r.desc}</td><td>R$ ${r.valor.toFixed(2)}</td><td>${r.tipo}</td>`;
+        financeTable.appendChild(tr);
+      });
+      saldoSpan.textContent = saldo.toFixed(2);
+      localStorage.setItem("saldo", saldo);
+      localStorage.setItem("registros", JSON.stringify(registros));
+    }
+
+    financeForm.onsubmit = (e)=>{
+      e.preventDefault();
+      const desc = document.getElementById("desc").value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const tipo = document.getElementById("tipo").value;
+
+      if(tipo==="receita") saldo+=valor;
+      else saldo-=valor;
+
+      registros.push({desc,valor,tipo});
+      atualizarFinanceiro();
+      financeForm.reset();
+    };
+    atualizarFinanceiro();
+
+    // ---------------- Configurações ----------------
+    const bgColorPicker = document.getElementById("bgColorPicker");
+    const textColorPicker = document.getElementById("textColorPicker");
+    const dayColorPicker = document.getElementById("dayColorPicker");
+
+    function aplicarCores(){
+      document.body.style.setProperty("--bg-color", localStorage.getItem("bgColor")||"#fff8e7");
+      document.body.style.setProperty("--text-color", localStorage.getItem("textColor")||"#444");
+      document.querySelectorAll(".day").forEach(d=>{
+        d.style.background = localStorage.getItem("dayColor")||"#ffe6f2";
       });
     }
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    bgColorPicker.oninput = e => { localStorage.setItem("bgColor", e.target.value); aplicarCores(); };
+    textColorPicker.oninput = e => { localStorage.setItem("textColor", e.target.value); aplicarCores(); };
+    dayColorPicker.oninput = e => { localStorage.setItem("dayColor", e.target.value); aplicarCores(); };
 
-      const date = document.getElementById('date').value;
-      const desc = document.getElementById('desc').value;
-      const category = document.getElementById('category').value;
-      const value = parseFloat(document.getElementById('value').value);
-
-      if (!date || !desc || isNaN(value)) return;
-
-      if (!dataByMonth[currentMonth]) dataByMonth[currentMonth] = [];
-      dataByMonth[currentMonth].push({ date, desc, category, value });
-
-      renderExpenses();
-      form.reset();
-    });
-
-    monthButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        monthButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        inicioToggle.classList.remove('active');
-        currentMonth = btn.dataset.month;
-        pageTitle.textContent = `🌸 ${currentMonth} 🌸`;
-        expenseTable.style.display = '';
-        form.style.display = 'grid';
-        chartContainer.style.display = 'none';
-        totalContainer.style.display = 'block';
-        monthChartContainer.style.display = 'block';
-        renderExpenses();
-      });
-    });
-
-    monthsToggle.addEventListener('click', () => {
-      monthsSubmenu.classList.toggle('show');
-    });
-
-    inicioToggle.addEventListener('click', () => {
-      inicioToggle.classList.add('active');
-      monthButtons.forEach(b => b.classList.remove('active'));
-      pageTitle.textContent = '🌸 comparativo anual 🌸';
-      expenseTable.style.display = 'none';
-      form.style.display = 'none';
-      totalContainer.style.display = 'none';
-      monthChartContainer.style.display = 'none';
-      chartContainer.style.display = 'block';
-
-      const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-      const totals = monthNames.map(m => (dataByMonth[m] || []).reduce((acc, item) => acc + item.value, 0));
-
-      if (annualChart) annualChart.destroy();
-
-      const ctx = document.getElementById('annual-chart').getContext('2d');
-      annualChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: monthNames,
-          datasets: [{
-            label: 'gastos (r$)',
-            data: totals,
-            backgroundColor: [
-              '#fcbad3','#a0e7e5','#b4f8c8','#ffeeba','#cdb4db','#ffdac1','#e2f0cb','#cddafd','#ffc8dd','#b5ead7','#ffdfba','#c7ceea'
-            ]
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    });
-
-    // mostrar gráfico inicial ao carregar
-    inicioToggle.click();
+    // Restaurar cores ao carregar
+    aplicarCores();
   </script>
 </body>
 </html>
