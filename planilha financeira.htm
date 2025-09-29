@@ -1,328 +1,332 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planner e Controle Financeiro</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* ---------------- Global ---------------- */
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: var(--bg-color, #fff8e7);
-      color: var(--text-color, #444);
-    }
-    header {
-      display: flex;
-      justify-content: space-around;
-      background: #fbeaff;
-      padding: 10px 0;
-      border-bottom: 2px solid #f0d8ff;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    header button {
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      color: #6a4c93;
-      font-weight: bold;
-    }
-    header button.active {
-      color: #fff;
-      background: #fcbad3;
-      border-radius: 10px;
-      padding: 5px 10px;
-    }
-    section {
-      display: none;
-      padding: 20px;
-    }
-    section.active {
-      display: block;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner e Controle Financeiro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color, #fff8e7);
+    color: var(--text-color, #444);
+    font-size: var(--font-size, 16px);
+  }
+  header {
+    display: flex;
+    justify-content: space-around;
+    background: #fbeaff;
+    padding: 10px 0;
+    border-bottom: 2px solid #f0d8ff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #6a4c93;
+    font-weight: bold;
+  }
+  header button.active {
+    color: #fff;
+    background: #fcbad3;
+    border-radius: 10px;
+    padding: 5px 10px;
+  }
+  section { display: none; padding: 20px; }
+  section.active { display: block; }
 
-    /* ---------------- Planner ---------------- */
-    .weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 5px;
-    }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-    }
-    .day {
-      background: #ffe6f2;
-      border: 1px solid #f0d8ff;
-      border-radius: 8px;
-      padding: 15px 0;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .day:hover {
-      background: #fcbad3;
-      color: white;
-    }
+  /* Planner */
+  .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); font-weight: bold; text-align: center; margin-bottom: 5px; }
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .day {
+    background: #ffe6f2;
+    border: 1px solid #f0d8ff;
+    border-radius: 8px;
+    padding: 15px 0;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .day:hover { background: #fcbad3; color: white; }
 
-    /* ---------------- Modal ---------------- */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .modal-content h3 {
-      margin-top: 0;
-      text-align: center;
-    }
-    .modal-content input, .modal-content button {
-      width: 100%;
-      margin: 5px 0;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-    }
-    .modal-content button {
-      background: #ffd6e8;
-      border: none;
-      cursor: pointer;
-    }
-    .modal-content button:hover {
-      background: #fcbad3;
-      color: white;
-    }
+  /* Modal */
+  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index:100; }
+  .modal-content { background:white; padding:20px; border-radius:10px; width:90%; max-width:400px; box-shadow:0 4px 10px rgba(0,0,0,0.3); }
+  .modal-content h3 { margin-top:0; text-align:center; }
+  .modal-content input, .modal-content select, .modal-content button { width:100%; margin:5px 0; padding:8px; border-radius:5px; border:1px solid #ddd; font-size:14px; }
+  .modal-content button { background: var(--btn-color,#ffd6e8); border:none; cursor:pointer; }
+  .modal-content button:hover { background: var(--btn-hover-color,#fcbad3); color:white; }
 
-    /* ---------------- Financeiro ---------------- */
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 5px;
-      margin-bottom: 15px;
-    }
-    form input, form select, form button {
-      padding: 8px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-transform: lowercase;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      text-align: center;
-    }
-    th {
-      background: #e0d4f7;
-      color: #4b3b6b;
-    }
+  /* Financeiro */
+  form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap:5px; margin-bottom:15px; }
+  table { width:100%; border-collapse: collapse; text-transform: lowercase; }
+  th, td { padding:10px; border-bottom:1px solid #eee; text-align:center; }
+  th { background: #e0d4f7; color:#4b3b6b; }
+  .remove-btn { background: var(--btn-color,#ff7f7f); color:white; border:none; padding:3px 6px; border-radius:5px; cursor:pointer; }
+  .remove-btn:hover { background: var(--btn-hover-color,#ff4c4c); }
 
-    /* ---------------- Config ---------------- */
-    .config-option {
-      margin: 10px 0;
-    }
-  </style>
+  /* Config */
+  .config-option { margin:10px 0; }
+</style>
 </head>
 <body>
 
-  <!-- ---------------- Navegação ---------------- -->
-  <header>
-    <button class="active" onclick="showSection('planner')">Planner</button>
-    <button onclick="showSection('financeiro')">Financeiro</button>
-    <button onclick="showSection('config')">Configurações</button>
-  </header>
+<header>
+  <button class="active" onclick="showSection('planner')">Planner</button>
+  <button onclick="showSection('financeiro')">Finanças</button>
+  <button onclick="showSection('config')">Configurações</button>
+</header>
 
-  <!-- ---------------- Planner ---------------- -->
-  <section id="planner" class="active">
-    <h2>Planner Mensal</h2>
-    <div class="weekdays">
-      <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-    </div>
-    <div class="calendar" id="calendar"></div>
-  </section>
-
-  <!-- ---------------- Financeiro ---------------- -->
-  <section id="financeiro">
-    <h2>Controle Financeiro</h2>
-    <form id="financeForm">
-      <input type="text" id="desc" placeholder="Descrição" required>
-      <input type="number" id="valor" placeholder="Valor" step="0.01" required>
-      <select id="tipo">
-        <option value="receita">Receita</option>
-        <option value="despesa">Despesa</option>
-      </select>
-      <button type="submit">Adicionar</button>
-    </form>
-    <table>
-      <thead>
-        <tr><th>Descrição</th><th>Valor</th><th>Tipo</th></tr>
-      </thead>
-      <tbody id="financeTable"></tbody>
-    </table>
-    <h3>Saldo: R$ <span id="saldo">0.00</span></h3>
-  </section>
-
-  <!-- ---------------- Configurações ---------------- -->
-  <section id="config">
-    <h2>Configurações</h2>
-    <div class="config-option">
-      <label>Cor de fundo: </label>
-      <input type="color" id="bgColorPicker" value="#fff8e7">
-    </div>
-    <div class="config-option">
-      <label>Cor do texto: </label>
-      <input type="color" id="textColorPicker" value="#444444">
-    </div>
-    <div class="config-option">
-      <label>Cor dos dias do planner: </label>
-      <input type="color" id="dayColorPicker" value="#ffe6f2">
-    </div>
-  </section>
-
-  <!-- ---------------- Modal de tarefas ---------------- -->
-  <div class="modal" id="taskModal">
-    <div class="modal-content">
-      <h3 id="taskTitle"></h3>
-      <ul id="taskList"></ul>
-      <input type="text" id="newTaskInput" placeholder="Nova tarefa">
-      <button onclick="addTask()">Adicionar Tarefa</button>
-      <button onclick="closeModal()">Fechar</button>
-    </div>
+<section id="planner" class="active">
+  <h2>Planner Mensal</h2>
+  <div>
+    <label for="monthSelect">Mês:</label>
+    <select id="monthSelect"></select>
   </div>
+  <div class="weekdays">
+    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+  </div>
+  <div class="calendar" id="calendar"></div>
+</section>
 
-  <script>
-    // ---------------- Navegação ----------------
-    function showSection(id) {
-      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      document.querySelectorAll("header button").forEach(btn => btn.classList.remove("active"));
-      document.querySelector(`header button[onclick*="${id}"]`).classList.add("active");
-    }
+<section id="financeiro">
+  <h2>Controle Financeiro</h2>
+  <form id="financeForm">
+    <input type="text" id="desc" placeholder="Descrição" required>
+    <input type="number" id="valor" placeholder="Valor" step="0.01" required>
+    <select id="tipo">
+      <option value="receita">Receita</option>
+      <option value="despesa">Despesa</option>
+    </select>
+    <select id="categoria"></select>
+    <button type="submit">Adicionar</button>
+  </form>
 
-    // ---------------- Planner ----------------
-    const calendar = document.getElementById("calendar");
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || {};
-    const today = new Date();
-    const monthDays = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+  <h4>Gerenciar categorias:</h4>
+  <input type="text" id="newCategory" placeholder="Nova categoria">
+  <button onclick="addCategory()">Adicionar Categoria</button>
 
-    for (let i = 1; i <= monthDays; i++) {
-      const day = document.createElement("div");
+  <table>
+    <thead>
+      <tr><th>Descrição</th><th>Valor</th><th>Tipo</th><th>Categoria</th><th>Ações</th></tr>
+    </thead>
+    <tbody id="financeTable"></tbody>
+  </table>
+  <h3>Saldo: R$ <span id="saldo">0.00</span></h3>
+
+  <h3>Despesas por Categoria</h3>
+  <canvas id="despesaChart" style="max-width:400px; margin:20px auto; display:block;"></canvas>
+</section>
+
+<section id="config">
+  <h2>Configurações</h2>
+  <div class="config-option">
+    <label>Cor de fundo: </label>
+    <input type="color" id="bgColorPicker" value="#fff8e7">
+  </div>
+  <div class="config-option">
+    <label>Cor do texto: </label>
+    <input type="color" id="textColorPicker" value="#444444">
+  </div>
+  <div class="config-option">
+    <label>Cor dos dias do planner: </label>
+    <input type="color" id="dayColorPicker" value="#ffe6f2">
+  </div>
+  <div class="config-option">
+    <label>Tamanho da fonte: </label>
+    <input type="number" id="fontSizePicker" value="16" min="10" max="30"> px
+  </div>
+  <div class="config-option">
+    <label>Cor dos botões: </label>
+    <input type="color" id="btnColorPicker" value="#ffd6e8">
+  </div>
+  <div class="config-option">
+    <label>Cor do hover dos botões: </label>
+    <input type="color" id="btnHoverColorPicker" value="#fcbad3">
+  </div>
+  <div class="config-option">
+    <label>Cores das categorias (em ordem): </label>
+    <input type="text" id="categoriaColors" value="#fcbad3,#e0d4f7,#ffd6e8,#ffa6c1,#f7d4f0,#d4a5f7,#ffb3d9,#ffcce7,#f7c6d9,#e8b0f7">
+  </div>
+</section>
+
+<div class="modal" id="taskModal">
+  <div class="modal-content">
+    <h3 id="taskTitle"></h3>
+    <ul id="taskList"></ul>
+    <input type="text" id="newTaskInput" placeholder="Nova tarefa">
+    <button onclick="addTask()">Adicionar Tarefa</button>
+    <button onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+  // ---------------- Navegação ----------------
+  function showSection(id){
+    document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll("header button").forEach(b=>b.classList.remove("active"));
+    document.querySelector(`header button[onclick*="${id}"]`).classList.add("active");
+  }
+
+  // ---------------- Planner ----------------
+  const calendar = document.getElementById("calendar");
+  let tasks = JSON.parse(localStorage.getItem("tasks"))||{};
+  const today = new Date();
+  const monthSelect = document.getElementById("monthSelect");
+  const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  months.forEach((m,i)=>{
+    const opt=document.createElement("option"); opt.value=i; opt.textContent=m;
+    if(i===today.getMonth()) opt.selected=true;
+    monthSelect.appendChild(opt);
+  });
+
+  function renderCalendar(month){
+    calendar.innerHTML="";
+    const year=today.getFullYear();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    for(let i=1;i<=daysInMonth;i++){
+      const day=document.createElement("div");
       day.classList.add("day");
-      day.textContent = i;
-      day.onclick = () => openModal(i);
+      day.textContent=i;
+      day.onclick=()=>openModal(i);
       calendar.appendChild(day);
     }
-
-    let currentDay = null;
-    function openModal(day) {
-      currentDay = day;
-      document.getElementById("taskTitle").textContent = "Tarefas do dia " + day;
-      renderTasks();
-      document.getElementById("taskModal").style.display = "flex";
-    }
-    function closeModal() { document.getElementById("taskModal").style.display = "none"; }
-
-    function addTask() {
-      const input = document.getElementById("newTaskInput");
-      const task = input.value.trim();
-      if(task){
-        if(!tasks[currentDay]) tasks[currentDay] = [];
-        tasks[currentDay].push(task);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        input.value = "";
-        renderTasks();
-      }
-    }
-    function renderTasks() {
-      const list = document.getElementById("taskList");
-      list.innerHTML = "";
-      if(tasks[currentDay]){
-        tasks[currentDay].forEach((t,i)=>{
-          const li = document.createElement("li");
-          li.textContent = t;
-          li.onclick = () => { tasks[currentDay].splice(i,1); localStorage.setItem("tasks", JSON.stringify(tasks)); renderTasks(); };
-          list.appendChild(li);
-        });
-      }
-    }
-
-    // ---------------- Financeiro ----------------
-    const financeForm = document.getElementById("financeForm");
-    const financeTable = document.getElementById("financeTable");
-    const saldoSpan = document.getElementById("saldo");
-    let saldo = parseFloat(localStorage.getItem("saldo")) || 0;
-    let registros = JSON.parse(localStorage.getItem("registros")) || [];
-
-    function atualizarFinanceiro() {
-      financeTable.innerHTML = "";
-      registros.forEach(r=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${r.desc}</td><td>R$ ${r.valor.toFixed(2)}</td><td>${r.tipo}</td>`;
-        financeTable.appendChild(tr);
-      });
-      saldoSpan.textContent = saldo.toFixed(2);
-      localStorage.setItem("saldo", saldo);
-      localStorage.setItem("registros", JSON.stringify(registros));
-    }
-
-    financeForm.onsubmit = (e)=>{
-      e.preventDefault();
-      const desc = document.getElementById("desc").value;
-      const valor = parseFloat(document.getElementById("valor").value);
-      const tipo = document.getElementById("tipo").value;
-
-      if(tipo==="receita") saldo+=valor;
-      else saldo-=valor;
-
-      registros.push({desc,valor,tipo});
-      atualizarFinanceiro();
-      financeForm.reset();
-    };
-    atualizarFinanceiro();
-
-    // ---------------- Configurações ----------------
-    const bgColorPicker = document.getElementById("bgColorPicker");
-    const textColorPicker = document.getElementById("textColorPicker");
-    const dayColorPicker = document.getElementById("dayColorPicker");
-
-    function aplicarCores(){
-      document.body.style.setProperty("--bg-color", localStorage.getItem("bgColor")||"#fff8e7");
-      document.body.style.setProperty("--text-color", localStorage.getItem("textColor")||"#444");
-      document.querySelectorAll(".day").forEach(d=>{
-        d.style.background = localStorage.getItem("dayColor")||"#ffe6f2";
-      });
-    }
-
-    bgColorPicker.oninput = e => { localStorage.setItem("bgColor", e.target.value); aplicarCores(); };
-    textColorPicker.oninput = e => { localStorage.setItem("textColor", e.target.value); aplicarCores(); };
-    dayColorPicker.oninput = e => { localStorage.setItem("dayColor", e.target.value); aplicarCores(); };
-
-    // Restaurar cores ao carregar
     aplicarCores();
-  </script>
+  }
+
+  monthSelect.onchange=e=>renderCalendar(parseInt(e.target.value));
+  renderCalendar(today.getMonth());
+
+  let currentDay=null;
+  function openModal(day){currentDay=day; document.getElementById("taskTitle").textContent="Tarefas do dia "+day; renderTasks(); document.getElementById("taskModal").style.display="flex";}
+  function closeModal(){document.getElementById("taskModal").style.display="none";}
+  function addTask(){const input=document.getElementById("newTaskInput"); const t=input.value.trim(); if(t){if(!tasks[currentDay])tasks[currentDay]=[];tasks[currentDay].push(t); localStorage.setItem("tasks",JSON.stringify(tasks)); input.value=""; renderTasks();}}
+  function renderTasks(){const list=document.getElementById("taskList"); list.innerHTML=""; if(tasks[currentDay]){tasks[currentDay].forEach((t,i)=>{const li=document.createElement("li"); li.textContent=t; li.onclick=()=>{tasks[currentDay].splice(i,1); localStorage.setItem("tasks",JSON.stringify(tasks)); renderTasks();}; list.appendChild(li);});}}
+
+  // ---------------- Financeiro ----------------
+  const financeForm=document.getElementById("financeForm");
+  const financeTable=document.getElementById("financeTable");
+  const saldoSpan=document.getElementById("saldo");
+  let saldo=parseFloat(localStorage.getItem("saldo"))||0;
+  let registros=JSON.parse(localStorage.getItem("registros"))||[];
+  let categorias=JSON.parse(localStorage.getItem("categorias"))||["Alimentação","Transporte","Lazer","Saúde","Educação","Outros"];
+  let despesaChart;
+  const categoriaSelect=document.getElementById("categoria");
+
+  let categoriaColors=JSON.parse(localStorage.getItem("categoriaColors")) || ["#fcbad3","#e0d4f7","#ffd6e8","#ffa6c1","#f7d4f0","#d4a5f7","#ffb3d9","#ffcce7","#f7c6d9","#e8b0f7"];
+
+  function atualizarCategoriaSelects(){
+    categoriaSelect.innerHTML='<option value="">Categoria (opcional)</option>';
+    categorias.forEach(cat=>{
+      const opt=document.createElement("option"); opt.value=cat; opt.textContent=cat; categoriaSelect.appendChild(opt);
+    });
+    localStorage.setItem("categorias", JSON.stringify(categorias));
+    localStorage.setItem("categoriaColors", JSON.stringify(categoriaColors));
+  }
+  atualizarCategoriaSelects();
+
+  function addCategory(){
+    const newCat=document.getElementById("newCategory").value.trim();
+    if(newCat && !categorias.includes(newCat)){
+      categorias.push(newCat);
+      categoriaColors.push(getRandomPastelColor());
+      atualizarCategoriaSelects();
+      document.getElementById("newCategory").value='';
+      atualizarFinanceiro();
+    }
+  }
+
+  function getRandomPastelColor(){
+    const hue=Math.floor(Math.random()*360);
+    return `hsl(${hue},70%,85%)`;
+  }
+
+  function atualizarFinanceiro(){
+    financeTable.innerHTML="";
+    const catDespesa={};
+    registros.forEach((r,i)=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${r.desc}</td><td>R$ ${r.valor.toFixed(2)}</td><td>${r.tipo}</td><td>${r.categoria||"-"}</td>
+                      <td><button class="remove-btn" onclick="removerRegistro(${i})">Remover</button></td>`;
+      financeTable.appendChild(tr);
+      if(r.tipo==="despesa" && r.categoria) catDespesa[r.categoria]=(catDespesa[r.categoria]||0)+r.valor;
+    });
+
+    saldo=registros.reduce((acc,r)=>acc+(r.tipo==="receita"?r.valor:-r.valor),0);
+    saldoSpan.textContent=saldo.toFixed(2);
+    localStorage.setItem("registros", JSON.stringify(registros));
+    localStorage.setItem("saldo", saldo);
+
+    // Gráfico sempre visível
+    const ctx=document.getElementById('despesaChart').getContext('2d');
+    const labels = Object.keys(catDespesa).length ? Object.keys(catDespesa) : ['Sem despesas'];
+    const dataValues = Object.keys(catDespesa).length ? Object.values(catDespesa) : [1];
+    const colors = Object.keys(catDespesa).length ? Object.keys(catDespesa).map(cat=>categoriaColors[categorias.indexOf(cat)]||getRandomPastelColor()) : ['#eee'];
+
+    if(despesaChart) despesaChart.destroy();
+    despesaChart=new Chart(ctx,{
+      type:'pie',
+      data:{labels:labels, datasets:[{data:dataValues, backgroundColor:colors}]},
+      options:{plugins:{tooltip:{callbacks:{label:function(context){
+        const total=context.dataset.data.reduce((a,b)=>a+b,0);
+        const value=context.raw;
+        const percent=((value/total)*100).toFixed(1);
+        return labels[0]==='Sem despesas'? 'Sem despesas' : `${context.label}: R$ ${value.toFixed(2)} (${percent}%)`;
+      }}}}}
+    });
+  }
+
+  function removerRegistro(index){ registros.splice(index,1); atualizarFinanceiro(); }
+
+  financeForm.onsubmit=e=>{
+    e.preventDefault();
+    const desc=document.getElementById("desc").value;
+    const valor=parseFloat(document.getElementById("valor").value);
+    const tipo=document.getElementById("tipo").value;
+    const categoria=document.getElementById("categoria").value;
+    registros.push({desc,valor,tipo,categoria});
+    atualizarFinanceiro();
+    financeForm.reset();
+  };
+  atualizarFinanceiro();
+
+  // ---------------- Configurações ----------------
+  const bgColorPicker=document.getElementById("bgColorPicker");
+  const textColorPicker=document.getElementById("textColorPicker");
+  const dayColorPicker=document.getElementById("dayColorPicker");
+  const fontSizePicker=document.getElementById("fontSizePicker");
+  const btnColorPicker=document.getElementById("btnColorPicker");
+  const btnHoverColorPicker=document.getElementById("btnHoverColorPicker");
+  const categoriaColorsInput=document.getElementById("categoriaColors");
+
+  function aplicarCores(){
+    document.body.style.setProperty("--bg-color",localStorage.getItem("bgColor")||"#fff8e7");
+    document.body.style.setProperty("--text-color",localStorage.getItem("textColor")||"#444");
+    document.body.style.setProperty("--font-size",localStorage.getItem("fontSize")||16+"px");
+    document.querySelectorAll(".day").forEach(d=>d.style.background=localStorage.getItem("dayColor")||"#ffe6f2");
+    document.body.style.setProperty("--btn-color",localStorage.getItem("btnColor")||"#ffd6e8");
+    document.body.style.setProperty("--btn-hover-color",localStorage.getItem("btnHoverColor")||"#fcbad3");
+  }
+
+  bgColorPicker.oninput=e=>{ localStorage.setItem("bgColor",e.target.value); aplicarCores();}
+  textColorPicker.oninput=e=>{ localStorage.setItem("textColor",e.target.value); aplicarCores();}
+  dayColorPicker.oninput=e=>{ localStorage.setItem("dayColor",e.target.value); aplicarCores();}
+  fontSizePicker.oninput=e=>{ localStorage.setItem("fontSize",e.target.value); aplicarCores();}
+  btnColorPicker.oninput=e=>{ localStorage.setItem("btnColor",e.target.value); aplicarCores();}
+  btnHoverColorPicker.oninput=e=>{ localStorage.setItem("btnHoverColor",e.target.value); aplicarCores();}
+  categoriaColorsInput.onchange=e=>{
+    const cores=e.target.value.split(',').map(c=>c.trim()).filter(c=>c);
+    if(cores.length>=categorias.length){ categoriaColors=cores; localStorage.setItem("categoriaColors",JSON.stringify(categoriaColors)); atualizarFinanceiro();}
+  }
+
+  aplicarCores();
+</script>
 </body>
 </html>
