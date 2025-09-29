@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner e Controle Financeiro</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header>
+  <button class="active" onclick="showSection('planner')">Planner</button>
+  <button onclick="showSection('financeiro')">Finanças</button>
+  <button onclick="showSection('config')">Configurações</button>
+</header>
+
+<section id="planner" class="active">
+  <h2>🌸 Planner Mensal 🌸</h2>
+  <div class="month-tabs" id="plannerMonthTabs"></div>
+  <div class="weekdays">
+    <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+  </div>
+  <div class="calendar" id="calendar"></div>
+</section>
+
+<section id="financeiro">
+  <h2>🌸 Controle Financeiro 🌸</h2>
+  <div class="month-tabs" id="financeMonthTabs"></div>
+  <form id="financeForm">
+    <input type="text" id="desc" placeholder="Descrição" required>
+    <input type="number" id="valor" placeholder="Valor" step="0.01" required>
+    <select id="tipo">
+      <option value="receita">Receita</option>
+      <option value="despesa">Despesa</option>
+    </select>
+    <select id="categoria"></select>
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <h4>Gerenciar categorias:</h4>
+  <input type="text" id="newCategory" placeholder="Nova categoria">
+  <button onclick="addCategory()">Adicionar Categoria</button>
+
+  <table>
+    <thead>
+      <tr><th>Descrição</th><th>Valor</th><th>Tipo</th><th>Categoria</th><th>Ações</th></tr>
+    </thead>
+    <tbody id="financeTable"></tbody>
+  </table>
+  <h3>Saldo: R$ <span id="saldo">0.00</span></h3>
+
+  <h3>Despesas por Categoria</h3>
+  <canvas id="despesaChart" style="max-width:400px; margin:20px auto; display:block;"></canvas>
+</section>
+
+<section id="config">
+  <h2>🌸 Configurações 🌸</h2>
+  <div class="config-option">
+    <label>Cor de fundo: </label>
+    <input type="color" id="bgColorPicker" value="#fff8e7">
+  </div>
+  <div class="config-option">
+    <label>Cor do texto: </label>
+    <input type="color" id="textColorPicker" value="#444444">
+  </div>
+  <div class="config-option">
+    <label>Cor dos dias do planner: </label>
+    <input type="color" id="dayColorPicker" value="#ffe6f2">
+  </div>
+  <div class="config-option">
+    <label>Tamanho da fonte: </label>
+    <input type="number" id="fontSizePicker" value="16" min="10" max="30"> px
+  </div>
+  <div class="config-option">
+    <label>Cor dos botões: </label>
+    <input type="color" id="btnColorPicker" value="#ffd6e8">
+  </div>
+  <div class="config-option">
+    <label>Cor do hover dos botões: </label>
+    <input type="color" id="btnHoverColorPicker" value="#fcbad3">
+  </div>
+</section>
+
+<div class="modal" id="taskModal">
+  <div class="modal-content">
+    <h3 id="taskTitle"></h3>
+    <ul id="taskList"></ul>
+    <input type="time" id="taskTime" required>
+    <input type="text" id="newTaskInput" placeholder="Nova tarefa">
+    <button onclick="addTask()">Adicionar Tarefa</button>
+    <button onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
