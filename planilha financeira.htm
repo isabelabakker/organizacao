@@ -41,6 +41,11 @@
   section { display: none; padding: 20px; }
   section.active { display: block; }
 
+  /* Abas de meses */
+  .month-tabs { display:flex; flex-wrap:wrap; margin-bottom:10px; }
+  .month-tabs button { margin:2px; padding:5px 10px; border:none; border-radius:5px; cursor:pointer; background:#f0d8ff; color:#6a4c93; font-weight:bold; }
+  .month-tabs button.active { background:#fcbad3; color:white; }
+
   /* Planner */
   .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); font-weight: bold; text-align: center; margin-bottom: 5px; }
   .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
@@ -78,17 +83,14 @@
 <body>
 
 <header>
-  <button class="active" onclick="showSection('planner')">Planner</button>
+  <button class="active" onclick="showSection('planner')">Planner Mensal</button>
   <button onclick="showSection('financeiro')">Finanças</button>
   <button onclick="showSection('config')">Configurações</button>
 </header>
 
 <section id="planner" class="active">
-  <h2>Planner Mensal</h2>
-  <div>
-    <label for="monthSelect">Mês:</label>
-    <select id="monthSelect"></select>
-  </div>
+  <h2>🌸 Planner Mensal 🌸</h2>
+  <div class="month-tabs" id="plannerMonthTabs"></div>
   <div class="weekdays">
     <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
   </div>
@@ -96,7 +98,8 @@
 </section>
 
 <section id="financeiro">
-  <h2>Controle Financeiro</h2>
+  <h2>🌸 Controle Financeiro 🌸</h2>
+  <div class="month-tabs" id="financeMonthTabs"></div>
   <form id="financeForm">
     <input type="text" id="desc" placeholder="Descrição" required>
     <input type="number" id="valor" placeholder="Valor" step="0.01" required>
@@ -119,13 +122,12 @@
     <tbody id="financeTable"></tbody>
   </table>
   <h3>Saldo: R$ <span id="saldo">0.00</span></h3>
-
   <h3>Despesas por Categoria</h3>
   <canvas id="despesaChart" style="max-width:400px; margin:20px auto; display:block;"></canvas>
 </section>
 
 <section id="config">
-  <h2>Configurações</h2>
+  <h2>🌸 Configurações 🌸</h2>
   <div class="config-option">
     <label>Cor de fundo: </label>
     <input type="color" id="bgColorPicker" value="#fff8e7">
@@ -150,18 +152,15 @@
     <label>Cor do hover dos botões: </label>
     <input type="color" id="btnHoverColorPicker" value="#fcbad3">
   </div>
-  <div class="config-option">
-    <label>Cores das categorias (em ordem): </label>
-    <input type="text" id="categoriaColors" value="#fcbad3,#e0d4f7,#ffd6e8,#ffa6c1,#f7d4f0,#d4a5f7,#ffb3d9,#ffcce7,#f7c6d9,#e8b0f7">
-  </div>
 </section>
 
 <div class="modal" id="taskModal">
   <div class="modal-content">
     <h3 id="taskTitle"></h3>
-    <ul id="taskList"></ul>
     <input type="text" id="newTaskInput" placeholder="Nova tarefa">
+    <input type="time" id="newTaskTime">
     <button onclick="addTask()">Adicionar Tarefa</button>
+    <ul id="taskList"></ul>
     <button onclick="closeModal()">Fechar</button>
   </div>
 </div>
@@ -175,22 +174,32 @@
     document.querySelector(`header button[onclick*="${id}"]`).classList.add("active");
   }
 
-  // ---------------- Planner ----------------
-  const calendar = document.getElementById("calendar");
-  let tasks = JSON.parse(localStorage.getItem("tasks"))||{};
-  const today = new Date();
-  const monthSelect = document.getElementById("monthSelect");
   const months = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const today = new Date();
+
+  // ---------------- Planner ----------------
+  const plannerMonthTabs = document.getElementById("plannerMonthTabs");
+  const calendar = document.getElementById("calendar");
+  let plannerCurrentMonth = today.getMonth();
+  let tasks = JSON.parse(localStorage.getItem("tasks"))||{};
+
   months.forEach((m,i)=>{
-    const opt=document.createElement("option"); opt.value=i; opt.textContent=m;
-    if(i===today.getMonth()) opt.selected=true;
-    monthSelect.appendChild(opt);
+    const btn=document.createElement("button");
+    btn.textContent=m;
+    if(i===plannerCurrentMonth) btn.classList.add("active");
+    btn.onclick=()=>{ 
+      plannerCurrentMonth=i;
+      document.querySelectorAll("#plannerMonthTabs button").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      renderCalendar();
+    };
+    plannerMonthTabs.appendChild(btn);
   });
 
-  function renderCalendar(month){
+  function renderCalendar(){
     calendar.innerHTML="";
     const year=today.getFullYear();
-    const daysInMonth=new Date(year,month+1,0).getDate();
+    const daysInMonth=new Date(year,plannerCurrentMonth+1,0).getDate();
     for(let i=1;i<=daysInMonth;i++){
       const day=document.createElement("div");
       day.classList.add("day");
@@ -200,27 +209,69 @@
     }
     aplicarCores();
   }
-
-  monthSelect.onchange=e=>renderCalendar(parseInt(e.target.value));
-  renderCalendar(today.getMonth());
+  renderCalendar();
 
   let currentDay=null;
-  function openModal(day){currentDay=day; document.getElementById("taskTitle").textContent="Tarefas do dia "+day; renderTasks(); document.getElementById("taskModal").style.display="flex";}
-  function closeModal(){document.getElementById("taskModal").style.display="none";}
-  function addTask(){const input=document.getElementById("newTaskInput"); const t=input.value.trim(); if(t){if(!tasks[currentDay])tasks[currentDay]=[];tasks[currentDay].push(t); localStorage.setItem("tasks",JSON.stringify(tasks)); input.value=""; renderTasks();}}
-  function renderTasks(){const list=document.getElementById("taskList"); list.innerHTML=""; if(tasks[currentDay]){tasks[currentDay].forEach((t,i)=>{const li=document.createElement("li"); li.textContent=t; li.onclick=()=>{tasks[currentDay].splice(i,1); localStorage.setItem("tasks",JSON.stringify(tasks)); renderTasks();}; list.appendChild(li);});}}
+  function openModal(day){
+    currentDay=day;
+    document.getElementById("taskTitle").textContent=`Dia ${day}`;
+    renderTasks();
+    document.getElementById("taskModal").style.display="flex";
+  }
+  function closeModal(){ document.getElementById("taskModal").style.display="none"; }
+
+  function addTask(){
+    const desc=document.getElementById("newTaskInput").value.trim();
+    const time=document.getElementById("newTaskTime").value;
+    if(!desc || !time) return;
+    if(!tasks[plannerCurrentMonth]) tasks[plannerCurrentMonth]={};
+    if(!tasks[plannerCurrentMonth][currentDay]) tasks[plannerCurrentMonth][currentDay]=[];
+    tasks[plannerCurrentMonth][currentDay].push({desc,time});
+    tasks[plannerCurrentMonth][currentDay].sort((a,b)=>a.time.localeCompare(b.time));
+    localStorage.setItem("tasks",JSON.stringify(tasks));
+    document.getElementById("newTaskInput").value="";
+    document.getElementById("newTaskTime").value="";
+    renderTasks();
+  }
+
+  function renderTasks(){
+    const list=document.getElementById("taskList");
+    list.innerHTML="";
+    const dayTasks=tasks[plannerCurrentMonth]?.[currentDay]||[];
+    dayTasks.forEach((t,i)=>{
+      const li=document.createElement("li");
+      li.textContent=`[${t.time}] ${t.desc}`;
+      const btn=document.createElement("button");
+      btn.textContent="Remover";
+      btn.style.marginLeft="5px";
+      btn.onclick=()=>{ dayTasks.splice(i,1); localStorage.setItem("tasks",JSON.stringify(tasks)); renderTasks(); };
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
 
   // ---------------- Financeiro ----------------
-  const financeForm=document.getElementById("financeForm");
-  const financeTable=document.getElementById("financeTable");
-  const saldoSpan=document.getElementById("saldo");
-  let saldo=parseFloat(localStorage.getItem("saldo"))||0;
-  let registros=JSON.parse(localStorage.getItem("registros"))||[];
-  let categorias=JSON.parse(localStorage.getItem("categorias"))||["Alimentação","Transporte","Lazer","Saúde","Educação","Outros"];
-  let despesaChart;
+  const financeMonthTabs = document.getElementById("financeMonthTabs");
+  let financeCurrentMonth = today.getMonth();
+  let registros = JSON.parse(localStorage.getItem("registros"))||{};
+  let saldoData = JSON.parse(localStorage.getItem("saldoData"))||{};
+  let categorias = JSON.parse(localStorage.getItem("categorias"))||["Alimentação","Transporte","Lazer","Saúde","Educação","Outros"];
+  let categoriaColors = JSON.parse(localStorage.getItem("categoriaColors"))||["#fcbad3","#e0d4f7","#ffd6e8","#ffa6c1","#f7d4f0","#d4a5f7","#ffb3d9","#ffcce7","#f7c6d9","#e8b0f7"];
   const categoriaSelect=document.getElementById("categoria");
+  let despesaChart;
 
-  let categoriaColors=JSON.parse(localStorage.getItem("categoriaColors")) || ["#fcbad3","#e0d4f7","#ffd6e8","#ffa6c1","#f7d4f0","#d4a5f7","#ffb3d9","#ffcce7","#f7c6d9","#e8b0f7"];
+  months.forEach((m,i)=>{
+    const btn=document.createElement("button");
+    btn.textContent=m;
+    if(i===financeCurrentMonth) btn.classList.add("active");
+    btn.onclick=()=>{
+      financeCurrentMonth=i;
+      document.querySelectorAll("#financeMonthTabs button").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      atualizarFinanceiro();
+    };
+    financeMonthTabs.appendChild(btn);
+  });
 
   function atualizarCategoriaSelects(){
     categoriaSelect.innerHTML='<option value="">Categoria (opcional)</option>';
@@ -243,32 +294,41 @@
     }
   }
 
-  function getRandomPastelColor(){
-    const hue=Math.floor(Math.random()*360);
-    return `hsl(${hue},70%,85%)`;
-  }
+  function getRandomPastelColor(){ const hue=Math.floor(Math.random()*360); return `hsl(${hue},70%,85%)`; }
 
-  function atualizarFinanceiro(){
+function atualizarFinanceiro(){
+    const monthKey = financeCurrentMonth;
+    registros[monthKey] = registros[monthKey] || [];
+    saldoData[monthKey] = saldoData[monthKey] || 0;
+
+    const financeTable=document.getElementById("financeTable");
+    const saldoSpan=document.getElementById("saldo");
     financeTable.innerHTML="";
+
     const catDespesa={};
-    registros.forEach((r,i)=>{
+    registros[monthKey].forEach((r,i)=>{
       const tr=document.createElement("tr");
       tr.innerHTML=`<td>${r.desc}</td><td>R$ ${r.valor.toFixed(2)}</td><td>${r.tipo}</td><td>${r.categoria||"-"}</td>
                       <td><button class="remove-btn" onclick="removerRegistro(${i})">Remover</button></td>`;
       financeTable.appendChild(tr);
-      if(r.tipo==="despesa" && r.categoria) catDespesa[r.categoria]=(catDespesa[r.categoria]||0)+r.valor;
+
+      if(r.tipo==="despesa"){
+        const cat = r.categoria || "Sem categoria";
+        catDespesa[cat] = (catDespesa[cat]||0)+r.valor;
+      }
     });
 
-    saldo=registros.reduce((acc,r)=>acc+(r.tipo==="receita"?r.valor:-r.valor),0);
-    saldoSpan.textContent=saldo.toFixed(2);
-    localStorage.setItem("registros", JSON.stringify(registros));
-    localStorage.setItem("saldo", saldo);
+    saldoData[monthKey] = registros[monthKey].reduce((acc,r)=>acc+(r.tipo==="receita"?r.valor:-r.valor),0);
+    saldoSpan.textContent=saldoData[monthKey].toFixed(2);
 
-    // Gráfico sempre visível
+    localStorage.setItem("registros", JSON.stringify(registros));
+    localStorage.setItem("saldoData", JSON.stringify(saldoData));
+
+    // Gráfico
     const ctx=document.getElementById('despesaChart').getContext('2d');
     const labels = Object.keys(catDespesa).length ? Object.keys(catDespesa) : ['Sem despesas'];
     const dataValues = Object.keys(catDespesa).length ? Object.values(catDespesa) : [1];
-    const colors = Object.keys(catDespesa).length ? Object.keys(catDespesa).map(cat=>categoriaColors[categorias.indexOf(cat)]||getRandomPastelColor()) : ['#eee'];
+    const colors = Object.keys(catDespesa).map(cat => categoriaColors[categorias.indexOf(cat)] || getRandomPastelColor());
 
     if(despesaChart) despesaChart.destroy();
     despesaChart=new Chart(ctx,{
@@ -278,22 +338,25 @@
         const total=context.dataset.data.reduce((a,b)=>a+b,0);
         const value=context.raw;
         const percent=((value/total)*100).toFixed(1);
-        return labels[0]==='Sem despesas'? 'Sem despesas' : `${context.label}: R$ ${value.toFixed(2)} (${percent}%)`;
+        return `${context.label}: R$ ${value.toFixed(2)} (${percent}%)`;
       }}}}}
     });
+}
+
+  function removerRegistro(index){
+    registros[financeCurrentMonth].splice(index,1);
+    atualizarFinanceiro();
   }
 
-  function removerRegistro(index){ registros.splice(index,1); atualizarFinanceiro(); }
-
-  financeForm.onsubmit=e=>{
+  document.getElementById("financeForm").onsubmit = e=>{
     e.preventDefault();
     const desc=document.getElementById("desc").value;
     const valor=parseFloat(document.getElementById("valor").value);
     const tipo=document.getElementById("tipo").value;
     const categoria=document.getElementById("categoria").value;
-    registros.push({desc,valor,tipo,categoria});
+    registros[financeCurrentMonth].push({desc,valor,tipo,categoria});
     atualizarFinanceiro();
-    financeForm.reset();
+    document.getElementById("financeForm").reset();
   };
   atualizarFinanceiro();
 
@@ -304,7 +367,6 @@
   const fontSizePicker=document.getElementById("fontSizePicker");
   const btnColorPicker=document.getElementById("btnColorPicker");
   const btnHoverColorPicker=document.getElementById("btnHoverColorPicker");
-  const categoriaColorsInput=document.getElementById("categoriaColors");
 
   function aplicarCores(){
     document.body.style.setProperty("--bg-color",localStorage.getItem("bgColor")||"#fff8e7");
@@ -314,19 +376,19 @@
     document.body.style.setProperty("--btn-color",localStorage.getItem("btnColor")||"#ffd6e8");
     document.body.style.setProperty("--btn-hover-color",localStorage.getItem("btnHoverColor")||"#fcbad3");
   }
-
-  bgColorPicker.oninput=e=>{ localStorage.setItem("bgColor",e.target.value); aplicarCores();}
-  textColorPicker.oninput=e=>{ localStorage.setItem("textColor",e.target.value); aplicarCores();}
-  dayColorPicker.oninput=e=>{ localStorage.setItem("dayColor",e.target.value); aplicarCores();}
-  fontSizePicker.oninput=e=>{ localStorage.setItem("fontSize",e.target.value); aplicarCores();}
-  btnColorPicker.oninput=e=>{ localStorage.setItem("btnColor",e.target.value); aplicarCores();}
-  btnHoverColorPicker.oninput=e=>{ localStorage.setItem("btnHoverColor",e.target.value); aplicarCores();}
-  categoriaColorsInput.onchange=e=>{
-    const cores=e.target.value.split(',').map(c=>c.trim()).filter(c=>c);
-    if(cores.length>=categorias.length){ categoriaColors=cores; localStorage.setItem("categoriaColors",JSON.stringify(categoriaColors)); atualizarFinanceiro();}
-  }
-
   aplicarCores();
+
+  [bgColorPicker,textColorPicker,dayColorPicker,fontSizePicker,btnColorPicker,btnHoverColorPicker].forEach(input=>{
+    input.addEventListener("input",()=>{
+      if(input===bgColorPicker) localStorage.setItem("bgColor",input.value);
+      if(input===textColorPicker) localStorage.setItem("textColor",input.value);
+      if(input===dayColorPicker) localStorage.setItem("dayColor",input.value);
+      if(input===fontSizePicker) localStorage.setItem("fontSize",input.value);
+      if(input===btnColorPicker) localStorage.setItem("btnColor",input.value);
+      if(input===btnHoverColorPicker) localStorage.setItem("btnHoverColor",input.value);
+      aplicarCores();
+    });
+  });
 </script>
 </body>
 </html>
