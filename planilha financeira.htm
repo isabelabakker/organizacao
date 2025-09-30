@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>controle financeiro</title>
+  <title>organizatio</title>
 
   <style>
     body {
@@ -132,7 +132,7 @@
       margin: 20px auto;
     }
     #chart-container {
-      display: none;
+      display: none; 
     }
 
     /* estilos para gerenciador de listas */
@@ -166,6 +166,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      text-transform: capitalize;
     }
     .list h2 button {
       background: #e74c3c;
@@ -203,6 +204,167 @@
     li input[type="checkbox"] {
       margin-right: 10px;
     }
+
+    /* estilos para o calendário */
+    #calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 0 10px;
+    }
+    
+    #calendar-month-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    #calendar-controls #calendar-month-year {
+        display: none;
+    }
+
+    #calendar-controls button {
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 16px;
+      text-transform: capitalize;
+    }
+
+    #calendar-controls button:hover {
+      background: #2980b9;
+    }
+
+    #calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .calendar-day-name {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px 0;
+      background: #eee;
+      border-radius: 5px;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .calendar-day {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px 5px;
+      min-height: 80px; 
+      text-align: left;
+      vertical-align: top;
+      transition: background 0.2s;
+      cursor: pointer; /* Tornando o dia clicável */
+      position: relative;
+      overflow: hidden; /* Para esconder tarefas que excedam */
+    }
+
+    .calendar-day:hover:not(.inactive) {
+      background: #f0f8ff;
+    }
+
+    .calendar-day.inactive {
+      background: #f9f9f9;
+      color: #bbb;
+      border: 1px dashed #eee;
+      cursor: default;
+    }
+
+    .calendar-day-number {
+      font-size: 18px;
+      font-weight: bold;
+      color: #3498db;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .task-indicator {
+        font-size: 10px;
+        color: white;
+        background: #2ecc71;
+        padding: 1px 4px;
+        border-radius: 3px;
+        margin-top: 2px;
+        display: inline-block;
+        max-width: 90%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    /* ---------------- MODAL STYLES ---------------- */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.4); 
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; 
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; 
+        max-width: 500px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .task-form {
+        display: grid;
+        grid-template-columns: 1fr 3fr auto;
+        gap: 10px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .task-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .task-list-item button {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
     
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -211,29 +373,20 @@
   <div class="sidebar">
     <button id="inicio-toggle" class="active">início</button>
     <button id="calendario-toggle">calendário</button>
-    <button id="months-toggle">financeiro ▾</button>
-    <div class="submenu" id="months-submenu">
-      <button class="month-btn" data-month="janeiro">janeiro</button>
-      <button class="month-btn" data-month="fevereiro">fevereiro</button>
-      <button class="month-btn" data-month="março">março</button>
-      <button class="month-btn" data-month="abril">abril</button>
-      <button class="month-btn" data-month="maio">maio</button>
-      <button class="month-btn" data-month="junho">junho</button>
-      <button class="month-btn" data-month="julho">julho</button>
-      <button class="month-btn" data-month="agosto">agosto</button>
-      <button class="month-btn" data-month="setembro">setembro</button>
-      <button class="month-btn" data-month="outubro">outubro</button>
-      <button class="month-btn" data-month="novembro">novembro</button>
-      <button class="month-btn" data-month="dezembro">dezembro</button>
-    </div>
+    <button id="financeiro-toggle">financeiro</button> 
     <button id="listas-toggle">listas</button>
     
   </div>
 
   <div class="container">
-    <!-- início -->
     <div id="inicio-page">
       <h1 id="page-title">comparativo anual</h1>
+      
+      <div id="financeiro-month-selector" style="text-align: center; margin-bottom: 20px; display: none;">
+          <label for="financeiro-month-select">selecione o mês:</label>
+          <select id="financeiro-month-select" style="padding: 5px; border-radius: 5px; text-transform: lowercase; margin-left: 10px;"></select>
+      </div>
+
       <form id="expense-form" style="display: none;">
         <input type="date" id="date" required>
         <input type="text" id="desc" placeholder="descrição" required>
@@ -270,18 +423,26 @@
       </div>
     </div>
 
-<!-- calendário -->
-<div id="calendario-page" style="display: none;">
-  <h1>planner mensal</h1>
-  <div id="calendar"></div>
-</div>
+    <div id="calendario-page" style="display: none;">
+      <h1>🗓️ planner mensal 🗓️</h1>
+      <div id="calendar-controls">
+        <button id="prev-month">anterior</button>
+        <div id="calendar-month-selector">
+            <label for="calendar-month-select" id="calendar-year-label"></label>
+            <select id="calendar-month-select" style="padding: 5px; border-radius: 5px; text-transform: lowercase;"></select>
+        </div>
+        <span id="calendar-month-year"></span>
+        <button id="next-month">próximo</button>
+      </div>
+      <div id="calendar-grid">
+        </div>
+    </div>
 
-    <!-- listas -->
     <div id="listas-page" style="display: none;">
-      <h1>gerenciador de listas</h1>
+      <h1>📝 gerenciador de listas 📝</h1>
       <div class="new-list">
         <input type="text" id="newListName" placeholder="Nome da nova lista">
-        <button onclick="createList()">Criar Lista</button>
+        <button id="createListButton">Criar Lista</button>
       </div>
       <div class="lists-container" id="listsContainer"></div>
     </div>
@@ -289,28 +450,140 @@
 </div>
   </div>
 
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeTaskModal()">&times;</span>
+      <h2 id="modalDateTitle">Tarefas para [Data]</h2>
+      
+      <h3>adicionar tarefa</h3>
+      <div class="task-form">
+        <input type="time" id="taskTime" value="09:00">
+        <input type="text" id="taskDescription" placeholder="descrição da tarefa" required>
+        <button onclick="addTask()">adicionar</button>
+      </div>
+
+      <h3>tarefas do dia</h3>
+      <div id="tasksList">
+        </div>
+    </div>
+  </div>
+
+
   <script>
     const form = document.getElementById('expense-form');
     const expenseList = document.getElementById('expense-list');
     const totalEl = document.getElementById('total');
     const pageTitle = document.getElementById('page-title');
-    const monthButtons = document.querySelectorAll('.month-btn');
-    const monthsToggle = document.getElementById('months-toggle');
-    const monthsSubmenu = document.getElementById('months-submenu');
+    
+    // Elementos da Sidebar
+    const financeiroToggle = document.getElementById('financeiro-toggle');
     const inicioToggle = document.getElementById('inicio-toggle');
+    const calendarioToggle = document.getElementById('calendario-toggle'); 
     const listasToggle = document.getElementById('listas-toggle');
+    
+    // Elementos da página
     const expenseTable = document.getElementById('expense-table');
     const chartContainer = document.getElementById('chart-container');
     const totalContainer = document.getElementById('total-container');
     const monthChartContainer = document.getElementById('month-chart-container');
     const inicioPage = document.getElementById('inicio-page');
+    const calendarioPage = document.getElementById('calendario-page'); 
     const listasPage = document.getElementById('listas-page');
+    const listsContainer = document.getElementById("listsContainer");
+    const newListNameInput = document.getElementById("newListName");
+    const createListButton = document.getElementById("createListButton"); 
+    
+    // Elementos do Financeiro
+    const financeiroMonthSelectorDiv = document.getElementById('financeiro-month-selector');
+    const financeiroMonthSelect = document.getElementById('financeiro-month-select');
+
+    // Elementos do Calendário
+    const calendarGrid = document.getElementById('calendar-grid'); 
+    const prevMonthButton = document.getElementById('prev-month'); 
+    const nextMonthButton = document.getElementById('next-month'); 
+    const calendarMonthSelect = document.getElementById('calendar-month-select');
+    const calendarYearLabel = document.getElementById('calendar-year-label'); 
+
+    // Elementos do Modal
+    const taskModal = document.getElementById('taskModal');
+    const modalDateTitle = document.getElementById('modalDateTitle');
+    const tasksList = document.getElementById('tasksList');
+    const taskTimeInput = document.getElementById('taskTime');
+    const taskDescriptionInput = document.getElementById('taskDescription');
+    
     let monthChart;
-    let dataByMonth = {};
+    let dataByMonth = {}; 
+    let calendarTasks = {}; // NOVO: Objeto para guardar tarefas do calendário
     let currentMonth = null;
     let annualChart;
+    let currentCalendarDate = new Date(); 
+    let selectedDateKey = null; // Chave 'YYYY-MM-DD' do dia selecionado no modal
+    
+    const monthNamesPt = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+    // ----------------------------------------------------
+    // PERSISTÊNCIA (localStorage)
+    // ----------------------------------------------------
+    
+    function saveFinancialData() {
+        localStorage.setItem('financialData', JSON.stringify(dataByMonth));
+    }
+
+    function loadFinancialData() {
+        const savedData = localStorage.getItem('financialData');
+        if (savedData) {
+            dataByMonth = JSON.parse(savedData);
+        } else {
+            dataByMonth = {}; 
+        }
+    }
+    
+    // NOVO: Persistência de Tarefas
+    function saveCalendarTasks() {
+        localStorage.setItem('calendarTasks', JSON.stringify(calendarTasks));
+    }
+    
+    function loadCalendarTasks() {
+        const savedTasks = localStorage.getItem('calendarTasks');
+        if (savedTasks) {
+            calendarTasks = JSON.parse(savedTasks);
+        } else {
+            calendarTasks = {};
+        }
+    }
+
+    function saveLists() {
+        const lists = Array.from(listsContainer.querySelectorAll('.list')).map(listDiv => {
+            const listName = listDiv.querySelector('h2').textContent.replace('X', '').trim();
+            const items = Array.from(listDiv.querySelectorAll('ul li')).map(li => {
+                return {
+                    text: li.querySelector('span').textContent,
+                    checked: li.querySelector('input[type="checkbox"]').checked
+                };
+            });
+            return { name: listName, items: items };
+        });
+        localStorage.setItem('todoLists', JSON.stringify(lists));
+    }
+
+    function loadAndRenderLists() {
+        listsContainer.innerHTML = '';
+        const savedLists = localStorage.getItem('todoLists');
+        if (savedLists) {
+            const listsData = JSON.parse(savedLists);
+            listsData.forEach(listData => {
+                createList(listData.name, listData.items);
+            });
+        }
+    }
+
+
+    // ----------------------------------------------------
+    // Funções de Renderização e Lógica Central
+    // ----------------------------------------------------
 
     function renderExpenses() {
+      // ... (código existente para renderizar despesas) ...
       expenseList.innerHTML = '';
       let total = 0;
       let categoryTotals = {};
@@ -334,6 +607,7 @@
         btn.addEventListener('click', (e) => {
           const idx = e.target.getAttribute('data-index');
           dataByMonth[currentMonth].splice(idx, 1);
+          saveFinancialData(); 
           renderExpenses();
         });
       });
@@ -359,116 +633,373 @@
       const category = document.getElementById('category').value;
       const value = parseFloat(document.getElementById('value').value);
       if (!date || !desc || isNaN(value)) return;
-      if (!dataByMonth[currentMonth]) dataByMonth[currentMonth] = [];
-      dataByMonth[currentMonth].push({ date, desc, category, value });
-      renderExpenses();
+      
+      const monthIndex = new Date(date + 'T12:00:00').getMonth(); 
+      const expenseMonth = monthNamesPt[monthIndex];
+
+      if (!dataByMonth[expenseMonth]) dataByMonth[expenseMonth] = [];
+      dataByMonth[expenseMonth].push({ date, desc, category, value });
+      
+      saveFinancialData(); 
+
+      if (currentMonth === expenseMonth) {
+         renderExpenses();
+      }
       form.reset();
     });
 
-    monthButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        monthButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        inicioToggle.classList.remove('active');
-        listasToggle.classList.remove('active');
-        inicioPage.style.display = '';
-        listasPage.style.display = 'none';
-        currentMonth = btn.dataset.month;
-        pageTitle.textContent = `🌸 ${currentMonth} 🌸`;
-        expenseTable.style.display = '';
-        form.style.display = 'grid';
-        chartContainer.style.display = 'none';
-        totalContainer.style.display = 'block';
-        monthChartContainer.style.display = 'block';
-        renderExpenses();
-      });
-    });
+    /**
+     * Função central para controlar qual tela está ativa e quais elementos devem ser visíveis.
+     */
+    function setActivePage(activeToggle, activePage) {
+      // 1. Desativa todos os botões da sidebar
+      document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+      activeToggle.classList.add('active');
 
-    monthsToggle.addEventListener('click', () => {
-      monthsSubmenu.classList.toggle('show');
-    });
-
-    inicioToggle.addEventListener('click', () => {
-      inicioToggle.classList.add('active');
-      listasToggle.classList.remove('active');
-      monthButtons.forEach(b => b.classList.remove('active'));
-      inicioPage.style.display = '';
+      // 2. Esconde todas as divs de página
+      inicioPage.style.display = 'none';
+      calendarioPage.style.display = 'none';
       listasPage.style.display = 'none';
-      pageTitle.textContent = '🌸 comparativo anual 🌸';
+      
+      // 3. Reseta visibilidade dos elementos de Finanças/Gráfico
+      financeiroMonthSelectorDiv.style.display = 'none';
       expenseTable.style.display = 'none';
       form.style.display = 'none';
       totalContainer.style.display = 'none';
       monthChartContainer.style.display = 'none';
-      chartContainer.style.display = 'block';
+      chartContainer.style.display = 'none'; 
 
-      const monthNames = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
-      const totals = monthNames.map(m => (dataByMonth[m] || []).reduce((acc, item) => acc + item.value, 0));
-      if (annualChart) annualChart.destroy();
-      const ctx = document.getElementById('annual-chart').getContext('2d');
-      annualChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: monthNames,
-          datasets: [{
-            label: 'gastos (r$)',
-            data: totals,
-            backgroundColor: ['#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#e74c3c','#95a5a6','#d35400','#7f8c8d','#f39c12','#8e44ad']
-          }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-      });
+      // 4. Exibe a página ativa
+      if (activePage === 'inicio') {
+        inicioPage.style.display = '';
+        renderAnnualChart(); 
+      } else if (activePage === 'calendario') {
+        calendarioPage.style.display = '';
+        initCalendarSelect(); 
+        renderCalendar(currentCalendarDate);
+      } else if (activePage === 'listas') {
+        listasPage.style.display = '';
+        loadAndRenderLists(); 
+      } else if (activePage === 'financeiro') {
+        inicioPage.style.display = ''; 
+        initFinanceiroSelect(); 
+        showFinanceiroView(); 
+      }
+    }
+
+    // Função para gerar o gráfico anual
+    function renderAnnualChart() {
+        // ... (código existente para o gráfico anual) ...
+        pageTitle.textContent = '📊 comparativo anual 📊';
+        chartContainer.style.display = 'block'; 
+        const totals = monthNamesPt.map(m => (dataByMonth[m] || []).reduce((acc, item) => acc + item.value, 0));
+        if (annualChart) annualChart.destroy();
+        const ctx = document.getElementById('annual-chart').getContext('2d');
+        annualChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: monthNamesPt,
+                datasets: [{
+                    label: 'gastos (r$)',
+                    data: totals,
+                    backgroundColor: ['#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#e74c3c','#95a5a6','#d35400','#7f8c8d','#f39c12','#8e44ad']
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    // ... (funções initFinanceiroSelect e showFinanceiroView) ...
+    function initFinanceiroSelect() {
+        if (financeiroMonthSelect.options.length === 0) {
+             monthNamesPt.forEach(month => {
+                const option = document.createElement('option');
+                option.value = month;
+                option.textContent = month;
+                financeiroMonthSelect.appendChild(option);
+            });
+        }
+    }
+
+    function showFinanceiroView() {
+        financeiroMonthSelectorDiv.style.display = 'block';
+
+        if (!currentMonth) {
+            currentMonth = monthNamesPt[new Date().getMonth()];
+        }
+        financeiroMonthSelect.value = currentMonth;
+        
+        pageTitle.textContent = `💵 controle financeiro 💵`;
+        expenseTable.style.display = '';
+        form.style.display = 'grid';
+        totalContainer.style.display = 'block';
+        monthChartContainer.style.display = 'block';
+        
+        renderExpenses();
+    }
+    
+    financeiroMonthSelect.addEventListener('change', (e) => {
+        currentMonth = e.target.value;
+        showFinanceiroView(); 
     });
 
-    listasToggle.addEventListener('click', () => {
-      listasToggle.classList.add('active');
-      inicioToggle.classList.remove('active');
-      monthButtons.forEach(b => b.classList.remove('active'));
-      inicioPage.style.display = 'none';
-      listasPage.style.display = '';
-    });
 
-    // funções do gerenciador de listas
-    function createList() {
-      const nameInput = document.getElementById("newListName");
-      const listName = nameInput.value.trim();
-      if (!listName) return;
-      nameInput.value = "";
-      const container = document.getElementById("listsContainer");
+    // ----------------------------------------------------
+    // Lógica do Calendário (INCLUINDO MODAL DE TAREFAS)
+    // ----------------------------------------------------
+
+    function initCalendarSelect() {
+        if (calendarMonthSelect.options.length === 0) {
+             monthNamesPt.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index; 
+                option.textContent = month;
+                calendarMonthSelect.appendChild(option);
+            });
+        }
+    }
+    
+    function renderCalendar(date) {
+      calendarGrid.innerHTML = `
+        <div class="calendar-day-name">dom</div>
+        <div class="calendar-day-name">seg</div>
+        <div class="calendar-day-name">ter</div>
+        <div class="calendar-day-name">qua</div>
+        <div class="calendar-day-name">qui</div>
+        <div class="calendar-day-name">sex</div>
+        <div class="calendar-day-name">sáb</div>
+      `; 
+
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      
+      calendarMonthSelect.value = month;
+      calendarYearLabel.textContent = `ano: ${year}`;
+
+      const firstDayOfMonth = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+      
+      // Dias Inativos Anteriores
+      for (let i = firstDayOfMonth; i > 0; i--) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day inactive';
+        dayDiv.innerHTML = `<span class="calendar-day-number">${daysInPrevMonth - i + 1}</span>`;
+        calendarGrid.appendChild(dayDiv);
+      }
+
+      // Dias Ativos do Mês
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day';
+        dayDiv.innerHTML = `<span class="calendar-day-number">${day}</span>`;
+        
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // NOVO: Adiciona o listener de clique para abrir o modal
+        dayDiv.addEventListener('click', () => {
+            openTaskModal(dateKey, day);
+        });
+
+        // NOVO: Exibe as tarefas salvas
+        const tasks = calendarTasks[dateKey] || [];
+        if (tasks.length > 0) {
+            dayDiv.style.border = '2px solid #2ecc71'; // Indica que tem tarefa
+            tasks.slice(0, 2).forEach(task => { // Mostra no máximo 2 tarefas
+                const taskEl = document.createElement('div');
+                taskEl.className = 'task-indicator';
+                taskEl.textContent = `${task.time} - ${task.description}`;
+                dayDiv.appendChild(taskEl);
+            });
+            if (tasks.length > 2) {
+                 const moreEl = document.createElement('div');
+                 moreEl.className = 'task-indicator';
+                 moreEl.style.background = '#3498db';
+                 moreEl.textContent = `+${tasks.length - 2} mais`;
+                 dayDiv.appendChild(moreEl);
+            }
+        }
+        
+        const today = new Date();
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            dayDiv.style.border = '2px solid #e74c3c';
+        }
+
+        calendarGrid.appendChild(dayDiv);
+      }
+
+      // Dias Inativos Posteriores
+      const totalDays = firstDayOfMonth + daysInMonth;
+      const totalSlots = Math.ceil(totalDays / 7) * 7;
+      const remainingSlots = totalSlots - totalDays;
+      
+      for (let i = 1; i <= remainingSlots; i++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'calendar-day inactive';
+        dayDiv.innerHTML = `<span class="calendar-day-number">${i}</span>`;
+        calendarGrid.appendChild(dayDiv);
+      }
+    }
+
+
+    // ----------------------------------------------------
+    // LÓGICA DO MODAL DE TAREFAS
+    // ----------------------------------------------------
+    
+    function openTaskModal(dateKey, day) {
+        selectedDateKey = dateKey;
+        const [year, month, ] = dateKey.split('-');
+        
+        modalDateTitle.textContent = `Tarefas para ${day} de ${monthNamesPt[parseInt(month) - 1]} de ${year}`;
+        
+        renderDayTasks();
+        
+        taskModal.style.display = 'block';
+    }
+
+    function closeTaskModal() {
+        taskModal.style.display = 'none';
+        renderCalendar(currentCalendarDate); // Atualiza o calendário após fechar
+    }
+
+    function renderDayTasks() {
+        tasksList.innerHTML = '';
+        const tasks = calendarTasks[selectedDateKey] || [];
+        
+        // Ordenar as tarefas por horário
+        tasks.sort((a, b) => (a.time > b.time) ? 1 : -1);
+
+        if (tasks.length === 0) {
+            tasksList.innerHTML = '<p style="text-align: center; color: #777;">nenhuma tarefa agendada.</p>';
+            return;
+        }
+
+        tasks.forEach((task, index) => {
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-list-item';
+            taskItem.innerHTML = `
+                <span><strong>${task.time}</strong> - ${task.description}</span>
+                <button onclick="removeTask(${index})">remover</button>
+            `;
+            tasksList.appendChild(taskItem);
+        });
+    }
+
+    function addTask() {
+        const time = taskTimeInput.value;
+        const description = taskDescriptionInput.value.trim();
+
+        if (!time || !description) {
+            alert('Por favor, preencha o horário e a descrição da tarefa.');
+            return;
+        }
+
+        if (!calendarTasks[selectedDateKey]) {
+            calendarTasks[selectedDateKey] = [];
+        }
+
+        calendarTasks[selectedDateKey].push({ time, description });
+        
+        // Limpa os inputs
+        taskDescriptionInput.value = '';
+        
+        saveCalendarTasks();
+        renderDayTasks();
+    }
+
+    function removeTask(index) {
+        if (calendarTasks[selectedDateKey]) {
+            calendarTasks[selectedDateKey].splice(index, 1);
+            
+            // Remove a chave do objeto se a lista de tarefas ficar vazia
+            if (calendarTasks[selectedDateKey].length === 0) {
+                delete calendarTasks[selectedDateKey];
+            }
+
+            saveCalendarTasks();
+            renderDayTasks();
+        }
+    }
+    
+    // ----------------------------------------------------
+    // Lógica do Gerenciador de Listas 
+    // ----------------------------------------------------
+    // ... (funções createList e checkCompletion) ...
+    function createList(initialName, initialItems = []) {
+      
+      let listName = initialName;
+      let fromInput = false;
+
+      if (initialName === undefined) {
+          listName = newListNameInput.value.trim();
+          if (!listName) return;
+          newListNameInput.value = "";
+          fromInput = true;
+      }
+      
       const listDiv = document.createElement("div");
       listDiv.className = "list";
       const title = document.createElement("h2");
       title.textContent = listName;
+      
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "X";
-      removeBtn.onclick = () => listDiv.remove();
+      removeBtn.onclick = () => {
+        listDiv.remove();
+        saveLists(); 
+      };
       title.appendChild(removeBtn);
+      
       const input = document.createElement("input");
       input.type = "text";
       input.placeholder = "Novo item";
+      
       const addBtn = document.createElement("button");
       addBtn.textContent = "Adicionar";
       addBtn.className = "add";
+      
       const ul = document.createElement("ul");
+      
+      const addItem = (text, checked = false) => {
+          const li = document.createElement("li");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = checked;
+
+          checkbox.onchange = () => {
+              checkCompletion(listDiv);
+              saveLists(); 
+          };
+          
+          const span = document.createElement("span");
+          span.textContent = text;
+          
+          li.appendChild(checkbox);
+          li.appendChild(span);
+          ul.appendChild(li);
+      };
+
       addBtn.onclick = () => {
         const text = input.value.trim();
         if (!text) return;
         input.value = "";
-        const li = document.createElement("li");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.onchange = () => checkCompletion(listDiv);
-        const span = document.createElement("span");
-        span.textContent = text;
-        li.appendChild(checkbox);
-        li.appendChild(span);
-        ul.appendChild(li);
+        addItem(text);
         checkCompletion(listDiv);
+        saveLists(); 
       };
+      
       listDiv.appendChild(title);
       listDiv.appendChild(input);
       listDiv.appendChild(addBtn);
       listDiv.appendChild(ul);
-      container.appendChild(listDiv);
+      listsContainer.appendChild(listDiv);
+
+      initialItems.forEach(item => addItem(item.text, item.checked));
+
+      checkCompletion(listDiv);
+      if (fromInput) {
+        saveLists(); 
+      }
     }
 
     function checkCompletion(listDiv) {
@@ -479,9 +1010,73 @@
         listDiv.classList.remove("completed");
       }
     }
+    
+    // ----------------------------------------------------
+    // Conexão dos Listeners 
+    // ----------------------------------------------------
 
-    // abrir "início" ao carregar
-    inicioToggle.click();
+    inicioToggle.addEventListener('click', () => {
+      setActivePage(inicioToggle, 'inicio');
+    });
+
+    calendarioToggle.addEventListener('click', () => {
+      setActivePage(calendarioToggle, 'calendario');
+    });
+
+    financeiroToggle.addEventListener('click', () => {
+      setActivePage(financeiroToggle, 'financeiro');
+    });
+
+    listasToggle.addEventListener('click', () => {
+      setActivePage(listasToggle, 'listas');
+    });
+
+    createListButton.addEventListener('click', () => {
+        createList();
+    });
+
+    calendarMonthSelect.addEventListener('change', (e) => {
+        const newMonth = parseInt(e.target.value);
+        currentCalendarDate.setMonth(newMonth);
+        renderCalendar(currentCalendarDate);
+    });
+
+    prevMonthButton.addEventListener('click', () => {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+      renderCalendar(currentCalendarDate);
+    });
+
+    nextMonthButton.addEventListener('click', () => {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+      renderCalendar(currentCalendarDate);
+    });
+    
+    // Fechar o modal ao clicar fora dele
+    window.onclick = function(event) {
+        if (event.target == taskModal) {
+            closeTaskModal();
+        }
+    }
+    
+    // ----------------------------------------------------
+    // Inicialização da Aplicação
+    // ----------------------------------------------------
+    
+    function initApp() {
+        // 1. Carregar todos os dados do LocalStorage
+        loadFinancialData();
+        loadAndRenderLists();
+        loadCalendarTasks(); // NOVO: Carrega as tarefas do calendário
+
+        // 2. Definir o mês atual para a view de Finanças
+        currentMonth = monthNamesPt[new Date().getMonth()];
+
+        // 3. Abrir a página "Início"
+        setActivePage(inicioToggle, 'inicio');
+    }
+
+    // Chamar a função de inicialização ao carregar o script
+    initApp();
   </script>
 </body>
 </html>
