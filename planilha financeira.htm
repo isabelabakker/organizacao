@@ -1,18 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
+
+  <link rel="icon" type="image/png" href="icon.png"> 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>organizatio</title>
+  <title>OrganizatIO</title>
 
   <style>
+
+      /* ... (restante dos seus estilos) ... */
+    
     /* ------------------------------------------------ */
-    /* ESTILOS TEMA CLARO (Padrão) */
+    /* CORREÇÃO PARA O TÍTULO PRINCIPAL */
+    /* ------------------------------------------------ */
+    #mensal-page-title {
+        /* Define a transformação de texto para "nenhuma",
+           permitindo letras maiúsculas/minúsculas normalmente */
+        text-transform: none; 
+    }
+    
+    /* ------------------------------------------------ */
+    /* ESTILOS TEMA CLARO (Padrão) - CORES VIVAS */
     /* ------------------------------------------------ */
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4; /* Fundo claro principal */
-      color: #444; /* Texto escuro */
+      background: #F0F2F5; /* Fundo claro e limpo */
+      color: #333; /* Texto escuro padrão */
       display: flex;
       height: 100vh;
       margin: 0;
@@ -21,16 +36,16 @@
     }
     .sidebar {
       width: 220px;
-      background: #fff; /* Sidebar claro */
+      background: #E8F0FE; /* Sidebar em azul claro vibrante */
       padding: 20px;
-      border-right: 2px solid #ddd;
+      border-right: 2px solid #dadada;
       display: flex;
       flex-direction: column;
       gap: 10px;
       transition: background 0.3s, border-color 0.3s;
     }
     .sidebar button {
-      background: #8bd1ff;
+      background: #3d71ff; /* Azul elétrico para botões não selecionados */
       border: none;
       border-radius: 10px;
       padding: 10px;
@@ -42,14 +57,33 @@
       color: white;
     }
     .sidebar button:hover {
-      background: #8bd1ff;
+      background: #3d71ff; /* Azul elétrico mais forte no hover */
+    }
+    /* Botões principais (planner, financeiro, listas) */
+    .mensal-sub-toggle {
+        background: #3586ff; /* Azul elétrico para não selecionado */
+        border: none;
+        border-radius: 8px;
+        padding: 8px 15px;
+        cursor: pointer;
+        color: white;
+        transition: 0.2s;
+        text-transform: lowercase;
+    }
+    .mensal-sub-toggle:hover {
+        background: #3d71ff; /* Azul elétrico mais forte no hover */
+    }
+    .mensal-sub-toggle.active-sub {
+        background: #3d71ff; /* Ciano vibrante para botão selecionado */
+        font-weight: bold;
+        color: white; 
     }
     
     .container {
       flex: 1;
-      background: white; /* Container claro */
+      background: #FFFFFF; /* Container branco */
       border-radius: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       margin: 20px;
       padding: 20px;
       overflow-y: auto;
@@ -57,7 +91,7 @@
     }
     h1, h2, h3 {
       text-align: center;
-      color: #444;
+      color: #333;
       margin-bottom: 20px;
       text-transform: lowercase; 
       transition: color 0.3s;
@@ -90,35 +124,37 @@
         flex-grow: 1;
     }
     
+    /* ALTERAÇÃO 3: Cor do botão "adicionar" mudada para o azul principal */
     button.add-btn {
-      background: #8bd1ff;
+      background: #3586ff; /* NOVO: Azul dos botões principais */
       border: none;
       cursor: pointer;
       color: white;
       transition: 0.2s;
     }
     button.add-btn:hover {
-      background: #8bd1ff;
+      background: #3d71ff; /* Azul mais forte no hover */
     }
     /* Estilo para o botão "Salvar Edição" */
     button.add-btn[type="submit"]:not(.add-btn) { 
-        background: #7dffb3;
+        background: #4CAF50; /* Verde vibrante para salvar */
+        color: white; 
     }
     
-    /* Estilo para o botão de gerenciar categorias (Cinza) */
+    /* Estilo para o botão de gerenciar categorias */
     #manage-categories-btn {
-        background: #95a5a6; /* Cinza claro */
-        color: white;
+        background: #9E9E9E; /* Cinza médio vibrante */
+        color: white; 
         border: none;
         padding: 8px 15px;
         border-radius: 10px;
         cursor: pointer;
         text-align: center;
-        flex-grow: 1; /* Ocupa metade do espaço do grupo */
+        flex-grow: 1; 
         transition: background 0.2s;
     }
     #manage-categories-btn:hover {
-        background: #7f8c8d; /* Cinza mais escuro no hover */
+        background: #757575; /* Cinza mais escuro no hover */
     }
     
     table {
@@ -132,18 +168,18 @@
       text-align: center;
     }
     th {
-      background: #ddd; /* Cabeçalho de tabela claro */
+      background: #E0F2F7; /* Azul claro suave para cabeçalho da tabela */
       color: #333;
       transition: background 0.3s, color 0.3s;
     }
     tr:hover {
-      background: #f9f9f9;
+      background: #F5F5F5;
     }
     .total {
       text-align: right;
       font-weight: bold;
       margin-top: 10px;
-      color: #444;
+      color: #333;
       transition: color 0.3s;
     }
     .delete-btn, .edit-btn { /* Estilos para botões da tabela */
@@ -155,16 +191,17 @@
       margin: 0 2px;
     }
     .delete-btn {
-      background: #ffb8fb;
+      background: #FF5252; /* Vermelho vibrante para excluir */
     }
     .delete-btn:hover {
-      background: #ffb8fb;
+      background: #FF1744; /* Vermelho mais forte */
     }
     .edit-btn {
-        background: #ffe684; /* Cor amarela para editar */
+        background: #4CAF50; /* Verde vibrante para editar */
+        color: white; 
     }
     .edit-btn:hover {
-        background: #ffe684;
+        background: #388E3C; /* Verde mais escuro */
     }
     
     #charts-dual-container {
@@ -208,11 +245,50 @@
       flex-shrink: 0;
     }
     
+    /* NOVO ESTILO: Container para o Input e Botão de Adicionar Item */
+    .list-input-group {
+        display: flex; 
+        gap: 5px; 
+        margin-bottom: 10px;
+    }
+    .list-input-group input {
+        flex-grow: 1; /* Faz o input ocupar o espaço restante */
+        margin-bottom: 0;
+    }
+    /* FIM NOVO ESTILO */
+
     /* NOVO ESTILO: Lista Concluída */
     .list.completed {
         opacity: 0.6; /* Efeito de apagamento */
     }
 
+    /* ALTERAÇÃO 2: Estilo para o botão de remover lista (circular) */
+    .delete-list-circular-btn {
+        background: #FF5252; /* Vermelho vibrante para excluir */
+        border: none;
+        cursor: pointer;
+        color: white;
+        
+        /* Formato Circular e Tamanho */
+        border-radius: 50%; /* Transforma o quadrado em círculo */
+        width: 24px; 
+        height: 24px; 
+        padding: 0; 
+        display: inline-flex; 
+        justify-content: center;
+        align-items: center;
+        font-size: 14px; 
+        line-height: 1;
+        flex-shrink: 0;
+        margin-left: 5px; 
+        vertical-align: middle; /* Alinha o botão com o texto do h2 */
+        
+        transition: background 0.2s;
+    }
+    .delete-list-circular-btn:hover {
+        background: #FF1744; 
+    }
+    
     /* estilos para o calendário */
     #calendar-grid {
       display: grid;
@@ -224,15 +300,17 @@
       text-align: center;
       font-weight: bold;
       padding: 10px 0;
-      background: #eee;
+      background: #E0F2F7; /* Azul claro suave para nomes dos dias */
       border-radius: 5px;
-      text-transform: uppercase;
+      text-transform: lowercase;
       font-size: 12px;
       transition: background 0.3s;
     }
+    
+    /* ALTERAÇÃO 1: Borda cinza para o tema claro */
     .calendar-day {
       background: #fff; 
-      border: 1px solid #ddd;
+      border: 1px solid #e6e5e5; /* NOVO: Cinza para tema claro */
       border-radius: 5px;
       padding: 10px 5px;
       min-height: 80px;
@@ -244,10 +322,10 @@
       overflow: hidden; 
     }
     .calendar-day:hover:not(.inactive) {
-      background: #f0f8ff;
+      background: #E8F0FE; /* Azul claro vibrante no hover do dia */
     }
     .calendar-day.inactive {
-      background: #f9f9f9;
+      background: #F9F9F9;
       color: #bbb;
       border: 1px dashed #eee;
       cursor: default;
@@ -255,7 +333,7 @@
     .calendar-day-number {
       font-size: 18px;
       font-weight: bold;
-      color: #3498db;
+      color: #9C27B0; /* Roxo vibrante para números dos dias */
       display: block;
       margin-bottom: 5px;
       transition: color 0.3s;
@@ -263,7 +341,7 @@
     .task-indicator {
       font-size: 10px;
       color: white;
-      background: #2ecc71;
+      background: #ff8f5b; /* rosa para tarefas */
       padding: 1px 4px;
       border-radius: 3px;
       margin-top: 2px;
@@ -325,7 +403,7 @@
       transition: border-color 0.3s;
     }
     .task-list-item button {
-      background: #e74c3c;
+      background: #FF5252; /* Vermelho vibrante para remover tarefa */
       color: white;
       border: none;
       padding: 5px 8px;
@@ -333,61 +411,49 @@
       cursor: pointer;
     }
     
-    /* Estilos específicos do Modal de Categorias */
-    #category-list-container div {
+    /* Estilos específicos do Modal de Categorias (Aplicados a ambas as listas) */
+    #expense-category-list-container div,
+    #revenue-category-list-container div {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 5px 0;
         border-bottom: 1px solid #eee;
     }
-    #category-list-container button {
-        background: #e74c3c;
+    #expense-category-list-container button,
+    #revenue-category-list-container button {
+        background: #FF5252; /* Vermelho vibrante para remover categoria */
         padding: 3px 8px;
         font-size: 12px;
     }
 
-
-    /* Estilo para os botões de navegação interna */
-    .mensal-sub-toggle {
-        background: #3498db;
-        border: none;
-        border-radius: 8px;
-        padding: 8px 15px;
-        cursor: pointer;
-        color: white;
-        transition: 0.2s;
-        text-transform: lowercase;
-    }
-    .mensal-sub-toggle:hover {
-        background: #2980b9;
-    }
-    .mensal-sub-toggle.active-sub {
-        background: #2ecc71; /* Cor de destaque para o botão ativo */
-        font-weight: bold;
-    }
-
-
     /* ------------------------------------------------ */
-    /* ESTILOS TEMA ESCURO */
+    /* ESTILOS TEMA ESCURO - CORES VIVAS */
     /* ------------------------------------------------ */
     body.dark-mode {
       background: #121212; 
-      color: #f0f0f0; 
+      color: #E0E0E0; 
     }
 
     body.dark-mode .sidebar {
-      background: #1f1f1f; 
-      border-right: 2px solid #292929;
+      background: #1F1F1F; 
+      border-right: 2px solid #333333;
     }
-
+    body.dark-mode .sidebar button {
+        background: #3d71ff; /* Azul escuro vibrante para botões não selecionados */
+    }
+    body.dark-mode .sidebar button:hover {
+        background: #3d71ff; /* Azul escuro mais forte no hover */
+    }
+    
+    /* ALTERAÇÃO 1 (Continuação): Borda cinza para o tema escuro */
     body.dark-mode .container,
     body.dark-mode .list,
     body.dark-mode .calendar-day,
     body.dark-mode hr {
-      background: #1e1e1e; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      border-color: #333 !important;
+      background: #1F1F1F; 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border-color: #666 !important; /* NOVO: Cinza para bordas em tema escuro */
     }
 
     body.dark-mode h1,
@@ -395,21 +461,21 @@
     body.dark-mode h3,
     body.dark-mode .total,
     body.dark-mode .close-button {
-      color: #ffffff;
+      color: #FFFFFF;
     }
     
     /* NOVO ESTILO: Lista Concluída em Dark Mode */
     body.dark-mode .list.completed {
-        opacity: 0.4; /* Efeito de apagamento mais acentuado para contraste */
+        opacity: 0.4; 
     }
 
     body.dark-mode th {
-      background: #333; 
-      color: #ccc;
+      background: #333333; 
+      color: #E0E0E0;
     }
 
     body.dark-mode tr:hover {
-      background: #252525;
+      background: #282828;
     }
     
     body.dark-mode .task-list-item {
@@ -421,63 +487,84 @@
     body.dark-mode .modal-content input,
     body.dark-mode .modal-content select,
     body.dark-mode .list input[type="text"],
-    body.dark-mode button:not(.delete-btn):not(.edit-btn):not(.sidebar button):not(.mensal-sub-toggle) {
-      background: #292929;
+    body.dark-mode button:not(.delete-btn):not(.edit-btn):not(.sidebar button):not(.mensal-sub-toggle):not(.delete-list-circular-btn) { /* Incluindo a nova classe */
+      background: #282828;
       border: 1px solid #555;
-      color: #f0f0f0;
+      color: #E0E0E0;
     }
     
+    /* ALTERAÇÃO 3 (Continuação): Cor do botão "adicionar" em dark mode */
     body.dark-mode button.add-btn {
-        color: white; /* Garante que o texto dos botões de ação permaneça branco */
+        background: #6b9aff; /* NOVO: Azul dos botões principais em dark mode */
+        color: white; 
+    }
+    body.dark-mode button.add-btn:hover {
+        background: #558bff; /* Azul mais forte no hover em dark mode */
+    }
+    
+    /* ALTERAÇÃO 2 (Continuação): Estilo circular em Dark Mode */
+    body.dark-mode .delete-list-circular-btn {
+      background: #D50000; /* Vermelho escuro para dark mode */
+    }
+    body.dark-mode .delete-list-circular-btn:hover {
+      background: #C60000; /* Vermelho mais escuro no hover */
     }
 
     body.dark-mode .mensal-sub-toggle {
-        background: #5dade2;
-        color: #f0f0f0;
+        background: #6b9aff; /* Azul escuro vibrante para não selecionado em dark mode */
+        color: white;
     }
     body.dark-mode .mensal-sub-toggle.active-sub {
-        background: #2ecc71;
+        background: #558bff; /* Ciano escuro vibrante para selecionado em dark mode */
+        color: white;
     }
     
     /* DARK MODE: Botão de Gerenciar Categorias */
     body.dark-mode #manage-categories-btn {
-        background: #555; /* Cinza escuro em dark mode */
+        background: #616161; /* Cinza mais escuro vibrante */
+        color: white;
     }
     body.dark-mode #manage-categories-btn:hover {
-        background: #444; 
+        background: #424242; /* Cinza ainda mais escuro */
     }
     
     body.dark-mode .calendar-day-name {
-      background: #333;
-      color: #ccc;
+      background: #333333;
+      color: #E0E0E0;
     }
 
     body.dark-mode .calendar-day:hover:not(.inactive) {
-      background: #2a2a2a;
+      background: #282828;
     }
 
     body.dark-mode .calendar-day.inactive {
-      background: #1a1a1a;
+      background: #1A1A1A;
       color: #666;
       border: 1px dashed #333;
       cursor: default;
     }
 
     body.dark-mode .calendar-day-number {
-      color: #bb86fc; 
+      color: #8d1ce9; /* Roxo mais escuro para números dos dias em dark mode */
     }
     
     body.dark-mode .modal-content {
-        background-color: #1e1e1e;
+        background-color: #1E1E1E;
         border: 1px solid #333;
-        color: #f0f0f0;
+        color: #E0E0E0;
     }
     
     body.dark-mode .edit-btn {
-        background: #f39c12; /* Cor mais escura para edição em dark mode */
+        background: #2E7D32; /* Verde escuro para editar em dark mode */
+        color: white; 
     }
     body.dark-mode .edit-btn:hover {
-        background: #e67e22;
+        background: #1B5E20; /* Verde ainda mais escuro */
+    }
+    
+    body.dark-mode .sidebar button#theme-toggle {
+        background: #616161; /* Cinza escuro para botão de tema em dark mode */
+        color: white; 
     }
     /* ------------------------------------------------ */
 
@@ -486,16 +573,18 @@
 </head>
 <body>
   <div class="sidebar">
-    <button id="theme-toggle" style="background: #e67e22; margin-top: auto;">🌙 tema</button>
+    <button id="theme-toggle" style="background: #9E9E9E; margin-top: auto; color: white;">🌙 tema</button>
   </div>
 
   <div class="container">
     
     <div id="mensal-page">
-        <h1 id="mensal-page-title">🗓️ planejamento mensal 🗓️</h1>
+        <h1 id="mensal-page-title">
+          
+          OrganizatIO</h1>
 
         <div id="mensal-controls" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px;">
-            <select id="calendar-month-select" style="padding: 8px; border-radius: 8px; text-transform: lowercase; font-size: 14px; border-color: #3498db;"></select>
+            <select id="calendar-month-select" style="padding: 8px; border-radius: 8px; text-transform: lowercase; font-size: 14px; border-color: #6A8EFE;"></select>
             
             <button id="show-planner" class="mensal-sub-toggle active-sub">planner</button>
             <button id="show-financeiro" class="mensal-sub-toggle">financeiro</button>
@@ -601,13 +690,23 @@
       
       <h3>gerenciar categorias</h3>
       
-      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+      <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center;">
+        <select id="newCategoryType" style="padding: 8px; border-radius: 10px; border: 1px solid #ccc;">
+          <option value="despesa">despesa</option>
+          <option value="receita">receita</option>
+        </select>
         <input type="text" id="newCategoryName" placeholder="nome da nova categoria" style="flex-grow: 1;">
         <button id="addCategoryButton" class="add-btn">adicionar</button>
       </div>
       
-      <h4>categorias atuais (apenas despesa)</h4>
-      <div id="category-list-container">
+      <h4>categorias de despesa</h4>
+      <div id="expense-category-list-container">
+        </div>
+      
+      <hr style="border-top: 1px solid #ddd; margin: 15px 0;">
+
+      <h4>categorias de receita</h4>
+      <div id="revenue-category-list-container">
         </div>
     </div>
   </div>
@@ -632,7 +731,8 @@
     const categoryModal = document.getElementById('categoryModal');
     const newCategoryNameInput = document.getElementById('newCategoryName');
     const addCategoryButton = document.getElementById('addCategoryButton');
-    const categoryListContainer = document.getElementById('category-list-container');
+    // NOVO: Elemento para o tipo da nova categoria
+    const newCategoryTypeInput = document.getElementById('newCategoryType'); 
     
     // Elementos da Sidebar
     const themeToggle = document.getElementById('theme-toggle'); 
@@ -658,11 +758,11 @@
     let dataByMonth = {}; 
     let calendarTasks = {};
     
-    // Categorias de Receita e Despesa
-    const revenueCategories = ["salário", "freela", "outros"]; 
+    // Categorias de Receita e Despesa (Agora são mutáveis)
+    let revenueCategories = ["salário", "freela", "outros"]; 
     let expenseCategories = [
         "alimentação", "transporte", "moradia", "lazer", "saúde", "educação", "outros"
-    ]; // Lista inicial de categorias de despesa
+    ]; 
     
     let currentMonth = null;
     let annualChart;
@@ -689,9 +789,13 @@
         if (theme === 'dark') {
             body.classList.add('dark-mode');
             themeButton.innerHTML = '☀️ tema';
+            themeButton.style.background = '#616161'; /* Cinza escuro para botão de tema em dark mode */
+            themeButton.style.color = 'white'; 
         } else {
             body.classList.remove('dark-mode');
             themeButton.innerHTML = '🌙 tema';
+            themeButton.style.background = '#9E9E9E'; /* Cinza médio vibrante para botão de tema em light mode */
+            themeButton.style.color = 'white'; 
         }
         localStorage.setItem('theme', theme);
         
@@ -708,7 +812,9 @@
     
     function saveFinancialData() {
         localStorage.setItem('financialData', JSON.stringify(dataByMonth));
+        // Salva ambas as listas de categorias
         localStorage.setItem('expenseCategories', JSON.stringify(expenseCategories));
+        localStorage.setItem('revenueCategories', JSON.stringify(revenueCategories));
     }
 
     function loadFinancialData() {
@@ -719,11 +825,19 @@
             dataByMonth = {}; 
         }
         
-        const savedCategories = localStorage.getItem('expenseCategories');
-        if (savedCategories) {
-            // Garante que as categorias salvas sejam carregadas, mas mantém as de receita estáticas.
-            expenseCategories = JSON.parse(savedCategories);
+        const savedExpenseCategories = localStorage.getItem('expenseCategories');
+        if (savedExpenseCategories) {
+            expenseCategories = JSON.parse(savedExpenseCategories);
         }
+        
+        const savedRevenueCategories = localStorage.getItem('revenueCategories');
+        if (savedRevenueCategories) {
+            revenueCategories = JSON.parse(savedRevenueCategories);
+        }
+        
+        // Garantir que 'outros' exista como fallback
+        if (!expenseCategories.includes('outros')) expenseCategories.push('outros');
+        if (!revenueCategories.includes('outros')) revenueCategories.push('outros');
     }
     
     function saveCalendarTasks() {
@@ -771,7 +885,7 @@
     }
 
     // ----------------------------------------------------
-    // GERENCIAMENTO DE CATEGORIAS (APENAS DESPESAS)
+    // GERENCIAMENTO DE CATEGORIAS
     // ----------------------------------------------------
     
     function renderCategorySelect(isRevenue = false) {
@@ -794,59 +908,100 @@
     }
     
     function renderCategoryModalList() {
-        categoryListContainer.innerHTML = '';
+        const expenseContainer = document.getElementById('expense-category-list-container');
+        const revenueContainer = document.getElementById('revenue-category-list-container');
         
-        expenseCategories.forEach(category => {
-            const div = document.createElement('div');
-            // Categorias iniciais que não podem ser removidas
-            const isStandard = ["alimentação", "transporte", "moradia", "lazer", "saúde", "educação", "outros"].includes(category); 
-            
-            div.innerHTML = `
-                <span>${category}</span>
-                ${isStandard ? '' : `<button onclick="removeCategory('${category}')">remover</button>`}
-            `;
-            categoryListContainer.appendChild(div);
-        });
+        expenseContainer.innerHTML = '';
+        revenueContainer.innerHTML = '';
+        
+        // Função auxiliar para renderizar a lista
+        const renderList = (categories, container, type) => {
+            if (categories.length === 0) {
+                container.innerHTML = `<p style="color: #777;">nenhuma categoria de ${type} cadastrada.</p>`;
+                return;
+            }
+
+            categories.forEach(category => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <span>${category}</span>
+                    <button onclick="removeCategory('${category}', '${type}')">remover</button>
+                `;
+                container.appendChild(div);
+            });
+        };
+        
+        renderList(expenseCategories, expenseContainer, 'despesa');
+        renderList(revenueCategories, revenueContainer, 'receita');
     }
 
     window.addCategory = function() {
         const name = newCategoryNameInput.value.trim().toLowerCase();
-        if (!name || expenseCategories.includes(name)) {
-            alert('nome inválido ou categoria já existe.');
+        const type = newCategoryTypeInput.value; // Pega o tipo selecionado
+
+        if (!name) {
+            alert('o nome da categoria é obrigatório.');
             return;
         }
         
-        expenseCategories.push(name);
+        let targetArray = type === 'receita' ? revenueCategories : expenseCategories;
+        
+        if (targetArray.includes(name)) {
+            alert('categoria já existe.');
+            return;
+        }
+        
+        // Adiciona ao array correto
+        targetArray.push(name);
+        
         newCategoryNameInput.value = '';
         saveFinancialData(); 
-        // Renderiza apenas as categorias de despesa, pois o modal só lida com elas
-        renderCategorySelect(typeInput.value === 'receita'); 
+        
+        // Renderiza a lista do modal
         renderCategoryModalList(); 
+        
+        // Atualiza o select de categoria do formulário (se o tipo atual for o que foi adicionado)
+        renderCategorySelect(typeInput.value === 'receita'); 
     }
     
-    window.removeCategory = function(category) {
-        const standardCategories = ["alimentação", "transporte", "moradia", "lazer", "saúde", "educação", "outros"];
-        if (standardCategories.includes(category)) {
-            alert('categorias padrão não podem ser removidas.');
-            return;
-        }
+    window.removeCategory = function(category, type) {
         
-        if (confirm(`tem certeza que deseja remover a categoria "${category}"?`)) {
-            expenseCategories = expenseCategories.filter(c => c !== category);
+        if (category === 'outros') {
+             alert('a categoria "outros" é reservada e não pode ser removida. ela é usada como fallback.');
+             return;
+        }
+
+        if (confirm(`tem certeza que deseja remover a categoria "${category}" de ${type}?`)) {
             
-            // Atualizar transações existentes para 'outros' se a categoria for removida
+            let targetArray = type === 'receita' ? revenueCategories : expenseCategories;
+            
+            // 1. Remove do array de categorias
+            if (targetArray.includes(category)) {
+                 targetArray = targetArray.filter(c => c !== category);
+                 if (type === 'receita') {
+                     revenueCategories = targetArray;
+                 } else {
+                     expenseCategories = targetArray;
+                 }
+            } else {
+                return;
+            }
+            
+            // 2. Atualiza transações existentes para 'outros'
             Object.keys(dataByMonth).forEach(month => {
                 (dataByMonth[month] || []).forEach(item => {
-                    if (item.category === category) {
+                    // Checa se o item tem o mesmo tipo e categoria que está sendo removida
+                    const itemType = item.type || (item.value >= 0 ? 'receita' : 'despesa');
+                    if (item.category === category && itemType === type) {
                         item.category = 'outros'; 
                     }
                 });
             });
             
             saveFinancialData();
-            renderCategorySelect(typeInput.value === 'receita'); // Atualiza o select
+            renderCategorySelect(typeInput.value === 'receita'); // Atualiza o select do formulário
             renderCategoryModalList(); // Atualiza o modal
-            renderExpenses(); 
+            renderExpenses(); // Re-renderiza a tabela e gráficos (caso o mês atual seja afetado)
         }
     }
     
@@ -881,7 +1036,7 @@
           <td>${formattedDate}</td> 
           <td>${item.desc}</td>
           <td>${item.category}</td>
-          <td style="color: ${transactionType === 'receita' ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">${transactionType}</td>
+          <td style="color: ${transactionType === 'receita' ? '#4CAF50' : '#FF5252'}; font-weight: bold;">${transactionType}</td>
           <td>r$ ${displayValue}</td>
           <td>
             <button class="edit-btn" data-index="${index}">editar</button>
@@ -900,12 +1055,12 @@
       });
       totalEl.textContent = total.toFixed(2);
       // "saldo total" é o total final
-      document.getElementById('total-container').innerHTML = `saldo total: r$ <span id="total" style="color: ${total >= 0 ? '#2ecc71' : '#e74c3c'};">${total.toFixed(2)}</span>`;
+      document.getElementById('total-container').innerHTML = `saldo total: r$ <span id="total" style="color: ${total >= 0 ? '#4CAF50' : '#FF5252'};">${total.toFixed(2)}</span>`;
 
 
       // GRÁFICO DO MÊS (Despesas por Categoria)
       const isDarkMode = document.body.classList.contains('dark-mode');
-      const textColor = isDarkMode ? '#f0f0f0' : '#444';
+      const textColor = isDarkMode ? '#E0E0E0' : '#333';
         
       const ctx = document.getElementById('month-chart').getContext('2d');
       if (monthChart) monthChart.destroy();
@@ -914,8 +1069,9 @@
       const chartLabels = Object.keys(categoryTotals).filter(key => categoryTotals[key] > 0);
       const chartData = chartLabels.map(key => categoryTotals[key]);
       
+      // Cores VIVAS Ajustadas para o Gráfico
       const backgroundColors = [
-            '#e74c3c', '#f39c12', '#2980b9', '#8e44ad', '#16a085', '#2ecc71', '#7f8c8d'
+            '#FF5252', '#4CAF50', '#00BCD4', '#9C27B0', '#FFC107', '#FF9800', '#795548'
         ];
       
       monthChart = new Chart(ctx, {
@@ -967,13 +1123,13 @@
         categoryInput.value = item.category;
         valueInput.value = absoluteValue;
         
-        // Esconde ou mostra o botão de gerenciar categorias baseado no tipo
-        manageCategoriesBtn.style.display = typeInput.value === 'receita' ? 'none' : 'block';
+        // O botão de gerenciar categorias fica sempre visível agora, sem toggle
 
         descInput.focus();
 
         submitButton.textContent = 'salvar edição';
-        submitButton.style.background = '#2ecc71'; 
+        submitButton.style.background = '#4CAF50'; // Verde vibrante para salvar
+        submitButton.style.color = 'white'; 
 
         if (!document.getElementById('cancel-edit-btn')) {
             const cancelButton = document.createElement('button');
@@ -981,7 +1137,7 @@
             cancelButton.type = 'button';
             cancelButton.textContent = 'cancelar';
             cancelButton.className = 'add-btn';
-            cancelButton.style.background = '#e67e22'; 
+            cancelButton.style.background = '#FF9800'; // Laranja vibrante para cancelar
             cancelButton.onclick = cancelEdit;
             // Insere o botão "cancelar" antes do botão "categorias"
             buttonGroup.insertBefore(cancelButton, manageCategoriesBtn);
@@ -993,12 +1149,14 @@
         form.reset(); 
         
         submitButton.textContent = 'adicionar';
-        submitButton.style.background = '#3498db'; 
+        // ALTERAÇÃO 3 (Continuação): Consistência do cor do botão no JS
+        submitButton.style.background = '#3586ff'; // NOVO: Azul dos botões principais
+        submitButton.style.color = 'white'; 
         
         // Reseta o tipo para despesa (padrão) e renderiza as categorias de despesa
         typeInput.value = 'despesa';
         renderCategorySelect(false);
-        manageCategoriesBtn.style.display = 'block';
+        // manageCategoriesBtn.style.display = 'block'; // Não é mais necessário
 
         const cancelButton = document.getElementById('cancel-edit-btn');
         if (cancelButton) {
@@ -1100,14 +1258,14 @@
         
         // 2. Atualiza o seletor de mês/ano na UI e no título
         calendarMonthSelect.value = monthIndex;
-        document.getElementById('mensal-page-title').textContent = `📝 planejamento mensal 📝`;
+        document.getElementById('mensal-page-title').textContent = `📝 OrganizatIO 📝`;
 
         // Define a data do input de despesa para o primeiro dia do mês selecionado
         const monthString = String(monthIndex + 1).padStart(2, '0');
         const defaultDate = `${year}-${monthString}-01`;
         document.getElementById('date').value = defaultDate;
 
-        // 3. Renderiza a seção que estiver ativa no momento
+        // 3. Inicia a view: Atualiza o título e mostra a seção Planner por padrão
         let activeSectionId = 'planner-section';
         const activeToggle = document.querySelector('.mensal-sub-toggle.active-sub');
         if (activeToggle) {
@@ -1120,7 +1278,7 @@
     function renderAnnualChart() {
         const isDarkMode = document.body.classList.contains('dark-mode');
         const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-        const textColor = isDarkMode ? '#f0f0f0' : '#444';
+        const textColor = isDarkMode ? '#E0E0E0' : '#333';
         
         const monthlyExpenses = monthNamesPt.map(m => {
             const monthData = dataByMonth[m] || [];
@@ -1139,8 +1297,8 @@
                 datasets: [{
                     label: 'total de despesas (r$)', 
                     data: monthlyExpenses,
-                    // Cor única para despesas
-                    backgroundColor: '#e74c3c' 
+                    // Cor VIVAS para Despesas -> Vermelho vibrante
+                    backgroundColor: '#FF5252' 
                 }]
             },
             options: { 
@@ -1222,7 +1380,7 @@
         // Exibe as tarefas salvas
         const tasks = calendarTasks[dateKey] || [];
         if (tasks.length > 0) {
-            dayDiv.style.border = '2px solid #2ecc71'; 
+            dayDiv.style.border = '2px solid #a572ff'; /* Roxo escuro vibrante para borda do dia com tarefa */
             tasks.slice(0, 2).forEach(task => { 
                 const taskEl = document.createElement('div');
                 taskEl.className = 'task-indicator';
@@ -1232,7 +1390,7 @@
             if (tasks.length > 2) {
                  const moreEl = document.createElement('div');
                  moreEl.className = 'task-indicator';
-                 moreEl.style.background = '#3498db';
+                 moreEl.style.background = '#FF1744'; /* Vermelho vibrante para "mais tarefas" */
                  moreEl.textContent = `+${tasks.length - 2} mais`;
                  dayDiv.appendChild(moreEl);
             }
@@ -1240,7 +1398,7 @@
         
         const today = new Date();
         if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-            dayDiv.style.border = '2px solid #e74c3c';
+            dayDiv.style.border = '2px solid #e3e3e3'; /* Cinza para o dia atual */
         }
 
         calendarGrid.appendChild(dayDiv);
@@ -1346,15 +1504,20 @@
       const title = document.createElement("h2");
       title.textContent = listName + ' '; 
       
+      // ALTERAÇÃO 2: Usa a nova classe de botão circular
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "x";
-      removeBtn.className = "delete-btn"; 
+      removeBtn.className = "delete-list-circular-btn"; 
       removeBtn.onclick = () => {
         listDiv.remove();
         saveLists(); 
       };
       
       title.appendChild(removeBtn); 
+      
+      // NOVO: Wrapper para Input e Botão de Adicionar Item
+      const inputGroup = document.createElement("div");
+      inputGroup.className = "list-input-group";
       
       const input = document.createElement("input");
       input.type = "text";
@@ -1395,8 +1558,12 @@
       };
       
       listDiv.appendChild(title);
-      listDiv.appendChild(input);
-      listDiv.appendChild(addBtn);
+      // Adiciona o Input e o Botão ao grupo
+      inputGroup.appendChild(input);
+      inputGroup.appendChild(addBtn);
+      // Adiciona o grupo à lista
+      listDiv.appendChild(inputGroup);
+      
       listDiv.appendChild(ul);
       listsContainer.appendChild(listDiv);
 
@@ -1436,7 +1603,7 @@
         applyTheme(newTheme);
     });
     
-    // NOVO (Corrigido): Event Delegation para botões de Editar/Excluir na Tabela Financeira
+    // Event Delegation para botões de Editar/Excluir na Tabela Financeira
     expenseList.addEventListener('click', function(e) {
         const index = e.target.getAttribute('data-index');
         if (e.target.classList.contains('edit-btn')) {
@@ -1454,8 +1621,7 @@
     typeInput.addEventListener('change', (e) => {
         const isRevenue = e.target.value === 'receita';
         renderCategorySelect(isRevenue);
-        // Esconde o botão de gerenciar categorias se for receita (categorias fixas)
-        manageCategoriesBtn.style.display = isRevenue ? 'none' : 'block';
+        // O botão de gerenciar categorias fica sempre visível
     });
 
 
@@ -1509,7 +1675,6 @@
         // 3. Inicializar o seletor de mês e categorias (inicia como Despesa)
         initCalendarSelect();
         renderCategorySelect(false); 
-        manageCategoriesBtn.style.display = 'block'; // Garante que o botão esteja visível no início
 
         // 4. Inicia a view: Atualiza o título e mostra a seção Planner por padrão
         updateMonthlyView();
